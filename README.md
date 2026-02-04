@@ -1,5 +1,5 @@
 # A Sokoban Web Game
-[![Deploy to GitHub Pages](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml) [![Run Tests](https://github.com/DoctorLai/sokoban-web/actions/workflows/tests.yml/badge.svg)](https://github.com/DoctorLai/sokoban-web/actions/workflows/tests.yml) [![Test Coverage](https://github.com/DoctorLai/sokoban-web/actions/workflows/coverage.yml/badge.svg)](https://github.com/DoctorLai/sokoban-web/actions/workflows/coverage.yml)
+[![Deploy to GitHub Pages](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml) [![Run Tests](https://github.com/DoctorLai/sokoban-web/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/DoctorLai/sokoban-web/actions/workflows/tests.yml) [![Test Coverage](https://github.com/DoctorLai/sokoban-web/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/DoctorLai/sokoban-web/actions/workflows/coverage.yml)
 
 Published to [https://doctorlai.github.io/sokoban-web/](https://doctorlai.github.io/sokoban-web/)
 
