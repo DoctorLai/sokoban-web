@@ -1,0 +1,19 @@
+{
+  "name": "sokoban-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "gen:levels": "node --loader ts-node/esm scripts/gen-levels.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.7"
+  }
+}
