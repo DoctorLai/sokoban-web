@@ -1,3 +1,4 @@
+import "./styles/main.css";
 import { LEVELS } from "./levels/index";
 import type { Dir, GameState, LevelJson, StepInfo } from "./types";
 import { parseLevel, cloneLevel } from "./core/level";
