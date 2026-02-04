@@ -22,7 +22,12 @@ export class Renderer {
 
     // Compute cell size to fit in canvas
     const pad = 10;
-    const cell = Math.floor(Math.min((this.canvas.width - pad * 2) / w, (this.canvas.height - pad * 2) / h));
+    const cell = Math.floor(
+      Math.min(
+        (this.canvas.width - pad * 2) / w,
+        (this.canvas.height - pad * 2) / h,
+      ),
+    );
     const ox = Math.floor((this.canvas.width - cell * w) / 2);
     const oy = Math.floor((this.canvas.height - cell * h) / 2);
 
@@ -56,7 +61,9 @@ export class Renderer {
 
       // Box
       if (state.boxes[i]) {
-        ctx.fillStyle = state.goals[i] ? "rgba(80,180,120,0.65)" : "rgba(220,170,80,0.65)";
+        ctx.fillStyle = state.goals[i]
+          ? "rgba(80,180,120,0.65)"
+          : "rgba(220,170,80,0.65)";
         const m = Math.floor(cell * 0.12);
         ctx.fillRect(px + m, py + m, cell - 2 * m, cell - 2 * m);
       }

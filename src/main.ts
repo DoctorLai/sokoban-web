@@ -68,7 +68,8 @@ function render() {
 }
 
 function countOnGoals(s: GameState): { onGoals: number; total: number } {
-  let onGoals = 0, total = 0;
+  let onGoals = 0,
+    total = 0;
   for (let i = 0; i < s.boxes.length; i++) {
     if (s.boxes[i]) {
       total++;
@@ -191,33 +192,33 @@ function setupButtons() {
   btnSolve.addEventListener("click", solve);
   btnPlay.addEventListener("click", playSolution);
 
-//   btnGenerate.addEventListener("click", async () => {
-//     if (playing) return;
-//     const boxCount = clamp(parseInt(genBoxes.value, 10) || 3, 1, 6);
-//     const revSteps = clamp(parseInt(genSteps.value, 10) || 60, 10, 250);
+  //   btnGenerate.addEventListener("click", async () => {
+  //     if (playing) return;
+  //     const boxCount = clamp(parseInt(genBoxes.value, 10) || 3, 1, 6);
+  //     const revSteps = clamp(parseInt(genSteps.value, 10) || 60, 10, 250);
 
-//     setBadge("Generating...");
-//     solEl.textContent = "Generating solvable level (reverse pull) ...";
+  //     setBadge("Generating...");
+  //     solEl.textContent = "Generating solvable level (reverse pull) ...";
 
-//     // Try a few times to hit difficulty range
-//     for (let attempt = 0; attempt < 20; attempt++) {
-//       const g = await generateOne(DEFAULT_ARENA, boxCount, revSteps, [8, 35]);
-//       if (g) {
-//         loadLevel(g.level);
-//         solEl.textContent =
-//           `Generated level with min pushes: ${g.pushes}
-// ` +
-//           `Solution: ${g.solution}
-// ` +
-//           `Tip: Click "Play solution" after running Solve.
-// `;
-//         setBadge("Generated ✅");
-//         return;
-//       }
-//     }
-//     setBadge("Generate failed");
-//     solEl.textContent = "Could not generate a level matching the difficulty range. Try increasing steps or changing box count.";
-//   });
+  //     // Try a few times to hit difficulty range
+  //     for (let attempt = 0; attempt < 20; attempt++) {
+  //       const g = await generateOne(DEFAULT_ARENA, boxCount, revSteps, [8, 35]);
+  //       if (g) {
+  //         loadLevel(g.level);
+  //         solEl.textContent =
+  //           `Generated level with min pushes: ${g.pushes}
+  // ` +
+  //           `Solution: ${g.solution}
+  // ` +
+  //           `Tip: Click "Play solution" after running Solve.
+  // `;
+  //         setBadge("Generated ✅");
+  //         return;
+  //       }
+  //     }
+  //     setBadge("Generate failed");
+  //     solEl.textContent = "Could not generate a level matching the difficulty range. Try increasing steps or changing box count.";
+  //   });
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -238,6 +239,44 @@ function setupKeyboard() {
   });
 }
 
+function setupDpad() {
+  const dpad = document.getElementById("dpad");
+  if (!dpad) return;
+
+  let timer: number | null = null;
+
+  const startRepeat = (dir: Dir) => {
+    move(dir); // immediate
+    timer = window.setInterval(() => move(dir), 90); // repeat speed
+  };
+
+  const stopRepeat = () => {
+    if (timer !== null) window.clearInterval(timer);
+    timer = null;
+  };
+
+  dpad.querySelectorAll<HTMLButtonElement>(".dpad-btn").forEach((btn) => {
+    btn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      const dir = btn.dataset.dir as Dir | undefined;
+      if (!dir) return;
+      stopRepeat();
+      startRepeat(dir);
+    });
+
+    btn.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      stopRepeat();
+    });
+
+    btn.addEventListener("pointercancel", stopRepeat);
+    btn.addEventListener("pointerleave", stopRepeat);
+  });
+
+  window.addEventListener("blur", stopRepeat);
+}
+
+setupDpad();
 setupLevelSelect();
 setupButtons();
 setupKeyboard();

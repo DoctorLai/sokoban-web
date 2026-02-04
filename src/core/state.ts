@@ -5,7 +5,10 @@ import { step, DIRS, xy } from "./grid";
  * Apply one move to the game state.
  * Returns whether the state changed, and if a push happened.
  */
-export function applyMove(s: GameState, dir: Dir): { changed: boolean; pushed: boolean } {
+export function applyMove(
+  s: GameState,
+  dir: Dir,
+): { changed: boolean; pushed: boolean } {
   const w = s.w;
   const h = s.h;
   const p1 = step(s.player, dir, w);
@@ -15,7 +18,8 @@ export function applyMove(s: GameState, dir: Dir): { changed: boolean; pushed: b
   const dd = DIRS[dir];
   const nx = px + dd.dx;
   const ny = py + dd.dy;
-  if (nx < 0 || nx >= w || ny < 0 || ny >= h) return { changed: false, pushed: false };
+  if (nx < 0 || nx >= w || ny < 0 || ny >= h)
+    return { changed: false, pushed: false };
   if (s.walls[p1]) return { changed: false, pushed: false };
 
   // If next is a box, attempt to push
@@ -23,7 +27,8 @@ export function applyMove(s: GameState, dir: Dir): { changed: boolean; pushed: b
     const p2 = step(p1, dir, w);
     const nnx = nx + dd.dx;
     const nny = ny + dd.dy;
-    if (nnx < 0 || nnx >= w || nny < 0 || nny >= h) return { changed: false, pushed: false };
+    if (nnx < 0 || nnx >= w || nny < 0 || nny >= h)
+      return { changed: false, pushed: false };
     if (s.walls[p2]) return { changed: false, pushed: false };
     if (s.boxes[p2]) return { changed: false, pushed: false };
 

@@ -30,7 +30,7 @@ export const DEFAULT_ARENA: LevelJson = {
     "#   #####     #",
     "#      .      #",
     "#             #",
-    "###############"
+    "###############",
   ],
 };
 
@@ -38,7 +38,7 @@ export async function generateOne(
   arena: LevelJson,
   boxCount: number,
   reverseSteps: number,
-  targetPushRange: [number, number] = [8, 30]
+  targetPushRange: [number, number] = [8, 30],
 ): Promise<{ level: LevelJson; solution: string; pushes: number } | null> {
   const solved = makeSolvedState(arena, boxCount);
 
@@ -58,8 +58,14 @@ export async function generateOne(
   const pushes = result.minPushes ?? 0;
   if (pushes < targetPushRange[0] || pushes > targetPushRange[1]) return null;
 
-  const level = toLevelJson(cur, `gen-${Date.now()}`, `Generated (${pushes} pushes)`);
-  const solution = result.steps.map(s => (s.pushed ? dirToChar(s.dir).toUpperCase() : dirToChar(s.dir))).join("");
+  const level = toLevelJson(
+    cur,
+    `gen-${Date.now()}`,
+    `Generated (${pushes} pushes)`,
+  );
+  const solution = result.steps
+    .map((s) => (s.pushed ? dirToChar(s.dir).toUpperCase() : dirToChar(s.dir)))
+    .join("");
   return { level, solution, pushes };
 }
 
@@ -70,7 +76,7 @@ function dirToChar(d: Dir): string {
 function makeSolvedState(arena: LevelJson, boxCount: number): GameState {
   // Parse arena manually (no @ or $ inside).
   const h = arena.map.length;
-  const w = Math.max(...arena.map.map(r => r.length));
+  const w = Math.max(...arena.map.map((r) => r.length));
   const walls = new Uint8Array(w * h);
   const goals: number[] = [];
   const boxes = new Uint8Array(w * h);
@@ -85,7 +91,8 @@ function makeSolvedState(arena: LevelJson, boxCount: number): GameState {
     }
   }
 
-  if (goals.length < boxCount) throw new Error("Arena has fewer goals than requested boxCount.");
+  if (goals.length < boxCount)
+    throw new Error("Arena has fewer goals than requested boxCount.");
 
   // Place boxes on a subset of goals
   shuffle(goals);
@@ -94,7 +101,14 @@ function makeSolvedState(arena: LevelJson, boxCount: number): GameState {
   // Place player on a reachable empty floor (choose first).
   // We temporarily set a player somewhere and then use reachable to find free space.
   let player = findAnyFloor(walls, boxes);
-  const s: GameState = { w, h, walls, goals: goalsToArray(goals, w * h), boxes, player };
+  const s: GameState = {
+    w,
+    h,
+    walls,
+    goals: goalsToArray(goals, w * h),
+    boxes,
+    player,
+  };
   const reach = reachable(s);
 
   for (let i = 0; i < reach.length; i++) {

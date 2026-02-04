@@ -76,6 +76,46 @@
         border-radius: 6px;
         font-size: 12px;
       }
+      /* On-screen D-pad (mobile-friendly) */
+#dpad {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px 56px;
+  gap: 8px;
+  z-index: 9999;
+
+  /* Avoid scroll/zoom gestures interfering */
+  touch-action: none;
+  user-select: none;
+}
+
+#dpad .dpad-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: rgba(30, 30, 30, 0.15);
+  font-size: 20px;
+  line-height: 1;
+}
+
+#dpad .dpad-btn:active {
+  transform: translateY(1px);
+}
+
+/* Place buttons in a D-pad shape */
+#dpad .dpad-btn[data-dir="U"] { grid-column: 2; grid-row: 1; }
+#dpad .dpad-btn[data-dir="L"] { grid-column: 1; grid-row: 2; }
+#dpad .dpad-btn[data-dir="D"] { grid-column: 2; grid-row: 3; }
+#dpad .dpad-btn[data-dir="R"] { grid-column: 3; grid-row: 2; }
+
+/* Hide on large screens (optional) */
+@media (min-width: 900px) {
+  #dpad { displa
+
     </style>
   </head>
   <body>
@@ -127,5 +167,14 @@
     </main>
 
     <script type="module" src="/src/main.ts"></script>
+
+  <!-- Mobile D-pad -->
+  <div id="dpad" aria-label="On-screen controls">
+    <button class="dpad-btn" data-dir="U" aria-label="Up">▲</button>
+    <button class="dpad-btn" data-dir="L" aria-label="Left">◀</button>
+    <button class="dpad-btn" data-dir="D" aria-label="Down">▼</button>
+    <button class="dpad-btn" data-dir="R" aria-label="Right">▶</button>
+  </div>
+
   </body>
 </html>

@@ -16,18 +16,32 @@ import { reachable, shortestWalkPath } from "./reach";
  *
  * For each push edge, we also reconstruct a concrete walking path (for UI playback).
  */
-export async function solveMinPushes(initial: GameState, maxExpanded = 200_000): Promise<SolveResult> {
+export async function solveMinPushes(
+  initial: GameState,
+  maxExpanded = 200_000,
+): Promise<SolveResult> {
   const t0 = performance.now();
 
   // Quick prune
   if (isCornerDeadlock(initial)) {
-    return { ok: false, reason: "Immediate deadlock detected (corner).", timeMs: performance.now() - t0 };
+    return {
+      ok: false,
+      reason: "Immediate deadlock detected (corner).",
+      timeMs: performance.now() - t0,
+    };
   }
   if (isWin(initial)) {
-    return { ok: true, minPushes: 0, steps: [], expanded: 0, timeMs: performance.now() - t0 };
+    return {
+      ok: true,
+      minPushes: 0,
+      steps: [],
+      expanded: 0,
+      timeMs: performance.now() - t0,
+    };
   }
 
-  const w = initial.w, h = initial.h;
+  const w = initial.w,
+    h = initial.h;
   const N = w * h;
 
   const encode = (player: number, boxes: Uint8Array): string => {
@@ -52,7 +66,13 @@ export async function solveMinPushes(initial: GameState, maxExpanded = 200_000):
 
   const rootKey = encode(initial.player, initial.boxes);
   const seen = new Map<string, Node>();
-  const root: Node = { player: initial.player, boxes: initial.boxes.slice(), parentKey: null, walk: "", pushDir: null };
+  const root: Node = {
+    player: initial.player,
+    boxes: initial.boxes.slice(),
+    parentKey: null,
+    walk: "",
+    pushDir: null,
+  };
   seen.set(rootKey, root);
   q.push(root);
 
@@ -62,7 +82,12 @@ export async function solveMinPushes(initial: GameState, maxExpanded = 200_000):
     const cur = q[qs++];
     expanded++;
     if (expanded > maxExpanded) {
-      return { ok: false, reason: `Search limit exceeded (expanded>${maxExpanded}).`, expanded, timeMs: performance.now() - t0 };
+      return {
+        ok: false,
+        reason: `Search limit exceeded (expanded>${maxExpanded}).`,
+        expanded,
+        timeMs: performance.now() - t0,
+      };
     }
 
     // Build a mutable state for reachability + pathfinding
@@ -77,13 +102,17 @@ export async function solveMinPushes(initial: GameState, maxExpanded = 200_000):
       if (!cur.boxes[bi]) continue;
 
       const { x, y } = xy(bi, w);
-      for (const [dir, dd] of Object.entries(DIRS) as [Dir, { dx: number; dy: number }][]) {
+      for (const [dir, dd] of Object.entries(DIRS) as [
+        Dir,
+        { dx: number; dy: number },
+      ][]) {
         const behindX = x - dd.dx;
         const behindY = y - dd.dy;
         const aheadX = x + dd.dx;
         const aheadY = y + dd.dy;
 
-        if (behindX < 0 || behindX >= w || behindY < 0 || behindY >= h) continue;
+        if (behindX < 0 || behindX >= w || behindY < 0 || behindY >= h)
+          continue;
         if (aheadX < 0 || aheadX >= w || aheadY < 0 || aheadY >= h) continue;
 
         const behind = behindY * w + behindX;
@@ -138,7 +167,12 @@ export async function solveMinPushes(initial: GameState, maxExpanded = 200_000):
     }
   }
 
-  return { ok: false, reason: "No solution found.", expanded, timeMs: performance.now() - t0 };
+  return {
+    ok: false,
+    reason: "No solution found.",
+    expanded,
+    timeMs: performance.now() - t0,
+  };
 }
 
 function countPushes(steps: StepInfo[]): number {
@@ -148,7 +182,11 @@ function countPushes(steps: StepInfo[]): number {
 /**
  * Reconstruct full move list (walk + push) from parent pointers.
  */
-function reconstructSteps(seen: Map<string, any>, goalKey: string, initial: GameState): StepInfo[] {
+function reconstructSteps(
+  seen: Map<string, any>,
+  goalKey: string,
+  initial: GameState,
+): StepInfo[] {
   const chain: any[] = [];
   let k: string | null = goalKey;
   while (k) {
@@ -182,11 +220,16 @@ function reconstructSteps(seen: Map<string, any>, goalKey: string, initial: Game
 
 function chToDir(ch: string): Dir {
   switch (ch) {
-    case "u": return "U";
-    case "d": return "D";
-    case "l": return "L";
-    case "r": return "R";
-    default: throw new Error(`Invalid walk dir: ${ch}`);
+    case "u":
+      return "U";
+    case "d":
+      return "D";
+    case "l":
+      return "L";
+    case "r":
+      return "R";
+    default:
+      throw new Error(`Invalid walk dir: ${ch}`);
   }
 }
 

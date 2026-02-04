@@ -30,7 +30,12 @@ async function main() {
   const targetPushRange: [number, number] = [10, 35];
 
   for (let i = 0; i < 2000 && made < want; i++) {
-    const g = await generateOne(DEFAULT_ARENA as LevelJson, boxCount, reverseSteps, targetPushRange);
+    const g = await generateOne(
+      DEFAULT_ARENA as LevelJson,
+      boxCount,
+      reverseSteps,
+      targetPushRange,
+    );
     if (!g) continue;
 
     const filename = join(outDir, `${g.level.id}.json`);

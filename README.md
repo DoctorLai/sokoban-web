@@ -50,6 +50,9 @@ In the solution string:
 Example: `rruULldD...`
 
 
+## Code Format
+Run `npm run format` to check format and `npm run format:fix` to fix the code format.
+
 ## Contributing
 
 Feel free to fork this project and submit issues or pull requests for improvements!

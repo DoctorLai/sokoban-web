@@ -30,7 +30,12 @@ export function isCornerDeadlock(s: GameState): boolean {
     const rightB = blocked(right);
 
     // box stuck in a corner formed by walls/bounds
-    if ((upB && leftB) || (upB && rightB) || (downB && leftB) || (downB && rightB)) {
+    if (
+      (upB && leftB) ||
+      (upB && rightB) ||
+      (downB && leftB) ||
+      (downB && rightB)
+    ) {
       return true;
     }
   }

@@ -9,7 +9,8 @@ export function reachable(s: GameState): Uint8Array {
   const { w, h } = s;
   const vis = new Uint8Array(w * h);
   const q = new Int32Array(w * h);
-  let qs = 0, qe = 0;
+  let qs = 0,
+    qe = 0;
 
   vis[s.player] = 1;
   q[qe++] = s.player;
@@ -39,7 +40,7 @@ export function reachable(s: GameState): Uint8Array {
 export function shortestWalkPath(
   s: GameState,
   start: number,
-  goal: number
+  goal: number,
 ): string | null {
   if (start === goal) return "";
 
@@ -48,7 +49,8 @@ export function shortestWalkPath(
   prev.fill(-1);
   const prevDir = new Int8Array(w * h); // 0..3
   const q = new Int32Array(w * h);
-  let qs = 0, qe = 0;
+  let qs = 0,
+    qe = 0;
 
   q[qe++] = start;
   prev[start] = start;
