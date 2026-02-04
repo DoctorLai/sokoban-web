@@ -1,4 +1,6 @@
 # A Sokoban Web Game
+Published to [https://doctorlai.github.io/sokoban-web/](https://doctorlai.github.io/sokoban-web/)
+
 
 <img width="1261" height="650" alt="image" src="https://github.com/user-attachments/assets/fc72e8b4-c86b-4e02-88cf-a067297d3264" />
 
@@ -46,3 +48,38 @@ In the solution string:
 - Uppercase letters: pushing a box
 
 Example: `rruULldD...`
+
+
+## Contributing
+
+Feel free to fork this project and submit issues or pull requests for improvements!
+
+1. Fork the repository.
+2. Create a feature branch:
+```bash
+git checkout -b feature-branch
+```
+3. Commit your changes:
+```bash
+git commit -am 'Add new feature'
+```
+4. Push to the branch:
+```bash
+git push origin feature-branch
+```
+5. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## Documentation
+
+Here is the [AI generated wiki](https://deepwiki.com/DoctorLai/sokoban-web)
+
+## Acknowledgments
+
+- Built with ❤️ by [@justyy](https://github.com/doctorlai)
+- Initial Boilerplate code contributed by ChatGPT 5.2.
+- If you found this tool useful, consider buying me a [coffee](https://justyy.com/out/bmc) ☕
+
