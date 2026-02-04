@@ -15,9 +15,9 @@ const btnUndo = document.getElementById("btnUndo") as HTMLButtonElement;
 const btnRedo = document.getElementById("btnRedo") as HTMLButtonElement;
 const btnSolve = document.getElementById("btnSolve") as HTMLButtonElement;
 const btnPlay = document.getElementById("btnPlay") as HTMLButtonElement;
-const btnGenerate = document.getElementById("btnGenerate") as HTMLButtonElement;
-const genBoxes = document.getElementById("genBoxes") as HTMLInputElement;
-const genSteps = document.getElementById("genSteps") as HTMLInputElement;
+// const btnGenerate = document.getElementById("btnGenerate") as HTMLButtonElement;
+// const genBoxes = document.getElementById("genBoxes") as HTMLInputElement;
+// const genSteps = document.getElementById("genSteps") as HTMLInputElement;
 
 const statsEl = document.getElementById("stats") as HTMLPreElement;
 const solEl = document.getElementById("solution") as HTMLPreElement;
@@ -191,33 +191,33 @@ function setupButtons() {
   btnSolve.addEventListener("click", solve);
   btnPlay.addEventListener("click", playSolution);
 
-  btnGenerate.addEventListener("click", async () => {
-    if (playing) return;
-    const boxCount = clamp(parseInt(genBoxes.value, 10) || 3, 1, 6);
-    const revSteps = clamp(parseInt(genSteps.value, 10) || 60, 10, 250);
+//   btnGenerate.addEventListener("click", async () => {
+//     if (playing) return;
+//     const boxCount = clamp(parseInt(genBoxes.value, 10) || 3, 1, 6);
+//     const revSteps = clamp(parseInt(genSteps.value, 10) || 60, 10, 250);
 
-    setBadge("Generating...");
-    solEl.textContent = "Generating solvable level (reverse pull) ...";
+//     setBadge("Generating...");
+//     solEl.textContent = "Generating solvable level (reverse pull) ...";
 
-    // Try a few times to hit difficulty range
-    for (let attempt = 0; attempt < 20; attempt++) {
-      const g = await generateOne(DEFAULT_ARENA, boxCount, revSteps, [8, 35]);
-      if (g) {
-        loadLevel(g.level);
-        solEl.textContent =
-          `Generated level with min pushes: ${g.pushes}
-` +
-          `Solution: ${g.solution}
-` +
-          `Tip: Click "Play solution" after running Solve.
-`;
-        setBadge("Generated ✅");
-        return;
-      }
-    }
-    setBadge("Generate failed");
-    solEl.textContent = "Could not generate a level matching the difficulty range. Try increasing steps or changing box count.";
-  });
+//     // Try a few times to hit difficulty range
+//     for (let attempt = 0; attempt < 20; attempt++) {
+//       const g = await generateOne(DEFAULT_ARENA, boxCount, revSteps, [8, 35]);
+//       if (g) {
+//         loadLevel(g.level);
+//         solEl.textContent =
+//           `Generated level with min pushes: ${g.pushes}
+// ` +
+//           `Solution: ${g.solution}
+// ` +
+//           `Tip: Click "Play solution" after running Solve.
+// `;
+//         setBadge("Generated ✅");
+//         return;
+//       }
+//     }
+//     setBadge("Generate failed");
+//     solEl.textContent = "Could not generate a level matching the difficulty range. Try increasing steps or changing box count.";
+//   });
 }
 
 function clamp(v: number, lo: number, hi: number): number {

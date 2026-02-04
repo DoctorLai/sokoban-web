@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "gen:levels": "node --loader ts-node/esm scripts/gen-levels.ts"
+    "gen:levels": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/gen-levels.js"
   },
   "dependencies": {},
   "devDependencies": {
