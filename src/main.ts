@@ -31,18 +31,39 @@ let history = new History();
 let solutionSteps: StepInfo[] | null = null;
 let playing = false;
 
+function getLevelFromURL(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("level");
+}
+
+function setLevelToURL(id: string) {
+  const params = new URLSearchParams(window.location.search);
+  params.set("level", id);
+
+  const newUrl = window.location.pathname + "?" + params.toString();
+
+  window.history.replaceState({}, "", newUrl);
+}
+
 function setBadge(text: string) {
   badge.textContent = text;
 }
 
 function loadLevel(lv: LevelJson) {
   currentLevel = lv;
+
+  // Update URL
+  setLevelToURL(lv.id);
+
   const parsed = parseLevel(lv);
   state = parsed;
+
   history = new History();
   history.init(state);
+
   solutionSteps = null;
   solEl.textContent = "";
+
   setBadge("Ready");
   render();
 }
@@ -183,7 +204,11 @@ function setupLevelSelect() {
     if (lv) loadLevel(lv);
   });
 
-  loadLevel(LEVELS[0]);
+  const urlLevel = getLevelFromURL();
+  const initial = LEVELS.find((x) => x.id === urlLevel) ?? LEVELS[0];
+
+  levelSelect.value = initial.id;
+  loadLevel(initial);
 }
 
 function setupButtons() {
@@ -248,7 +273,7 @@ function setupDpad() {
 
   const startRepeat = (dir: Dir) => {
     move(dir); // immediate
-    timer = window.setInterval(() => move(dir), 90); // repeat speed
+    timer = window.setInterval(() => move(dir), 200); // repeat speed
   };
 
   const stopRepeat = () => {
@@ -276,6 +301,17 @@ function setupDpad() {
 
   window.addEventListener("blur", stopRepeat);
 }
+
+window.addEventListener("popstate", () => {
+  const id = getLevelFromURL();
+  if (!id) return;
+
+  const lv = LEVELS.find((x) => x.id === id);
+  if (lv) {
+    levelSelect.value = lv.id;
+    loadLevel(lv);
+  }
+});
 
 setupDpad();
 setupLevelSelect();
