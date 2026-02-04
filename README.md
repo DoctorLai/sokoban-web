@@ -1,4 +1,6 @@
 # A Sokoban Web Game
+[![Deploy to GitHub Pages](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/DoctorLai/sokoban-web/actions/workflows/deploy.yml)
+
 Published to [https://doctorlai.github.io/sokoban-web/](https://doctorlai.github.io/sokoban-web/)
 
 
