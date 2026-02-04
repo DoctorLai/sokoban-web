@@ -3,8 +3,7 @@
 
 Published to [https://doctorlai.github.io/sokoban-web/](https://doctorlai.github.io/sokoban-web/)
 
-
-<img width="750" height="1098" alt="image" src="https://github.com/user-attachments/assets/99cbccec-6119-4e2a-9fe4-656f78961c66" />
+<img width="1121" height="586" alt="image" src="https://github.com/user-attachments/assets/f3dd0837-7425-4ca3-b530-499d6b9c629a" />
 
 A minimal Sokoban (Push Box) web game:
 - Pure front-end (Vite + TypeScript), suitable for GitHub Pages
