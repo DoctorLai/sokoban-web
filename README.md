@@ -1,4 +1,7 @@
-# Sokoban Web (Static GitHub Pages)
+# A Sokoban Web Game
+
+<img width="1261" height="650" alt="image" src="https://github.com/user-attachments/assets/fc72e8b4-c86b-4e02-88cf-a067297d3264" />
+
 
 A minimal Sokoban (Push Box) web game:
 - Pure front-end (Vite + TypeScript), suitable for GitHub Pages
