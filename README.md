@@ -18,6 +18,13 @@ npm install
 npm run dev
 ```
 
+And you will see local server is up.
+
+>   VITE v6.4.1  ready in 276 ms
+>  ➜  Local:   http://localhost:5173/
+> ➜  Network: use --host to expose
+>  ➜  press h + enter to show help
+
 ## Build
 
 ```bash
