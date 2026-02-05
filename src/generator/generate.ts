@@ -184,11 +184,11 @@ function randomReversePull(s: GameState): GameState | null {
       const backi = backy * w + backx;
 
       // Pull preconditions
-      if (!s.boxes[bi]) continue;                 // must have a box to pull
+      if (!s.boxes[bi]) continue; // must have a box to pull
       if (s.walls[backi] || s.boxes[backi]) continue; // back cell must be empty
 
       const ns = cloneLevel(s);
-      ns.player = p;          // player must be at p (reachable)
+      ns.player = p; // player must be at p (reachable)
       ns.boxes[bi] = 0;
       ns.boxes[p] = 1;
       ns.player = backi;
