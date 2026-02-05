@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
     "gen:levels": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/gen-levels.js",
     "format": "prettier --check 'src/**/*.{js,jsx,ts}' 'scripts/**/*.{js,jsx,ts}'",
     "format:fix": "prettier --write 'src/**/*.{js,jsx,ts}' 'scripts/**/*.{js,jsx,ts}'",

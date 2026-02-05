@@ -3,9 +3,12 @@
   "compilerOptions": {
     "noEmit": false,
     "outDir": "dist-scripts",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "target": "ES2022"
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noImplicitAny": false,
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "include": ["scripts/**/*.ts", "src/**/*.ts"]
 }

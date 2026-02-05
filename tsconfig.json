@@ -10,7 +10,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    "rootDir": "."
   },
   "include": ["src", "scripts"]
 }

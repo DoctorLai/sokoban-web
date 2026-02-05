@@ -110,14 +110,12 @@ function makeSolvedState(arena: LevelJson, boxCount: number): GameState {
     player,
   };
   const reach = reachable(s);
-
+  const reachableFloors: number[] = [];
   for (let i = 0; i < reach.length; i++) {
-    if (!reach[i]) continue;
-    if (walls[i] || boxes[i]) continue;
-    player = i;
-    break;
+    if (reach[i] && !walls[i] && !boxes[i]) reachableFloors.push(i);
   }
-  s.player = player;
+  shuffle(reachableFloors);
+  s.player = reachableFloors[0] ?? player;
   return s;
 }
 
@@ -153,36 +151,51 @@ function shuffle<T>(a: T[]) {
  * - Then move box into player cell, move player to back cell.
  */
 function randomReversePull(s: GameState): GameState | null {
-  const dirs: Dir[] = ["U", "D", "L", "R"];
-  shuffle(dirs);
-
   const { w, h } = s;
-  const p = s.player;
-  const { x, y } = xy(p, w);
 
-  for (const dir of dirs) {
-    const dd = DIRS[dir];
-    const bx = x + dd.dx;
-    const by = y + dd.dy;
-    const backx = x - dd.dx;
-    const backy = y - dd.dy;
-    if (bx < 0 || bx >= w || by < 0 || by >= h) continue;
-    if (backx < 0 || backx >= w || backy < 0 || backy >= h) continue;
-
-    const bi = by * w + bx;
-    const backi = backy * w + backx;
-
-    if (!s.boxes[bi]) continue;
-    if (s.walls[backi] || s.boxes[backi]) continue;
-
-    const ns = cloneLevel(s);
-    // pull box into player cell
-    ns.boxes[bi] = 0;
-    ns.boxes[p] = 1;
-    // player steps back
-    ns.player = backi;
-    return ns;
+  // where can the player actually stand (ignoring boxes as walls)? reachable() already does that.
+  const reach = reachable(s);
+  const candidates: number[] = [];
+  for (let i = 0; i < reach.length; i++) {
+    if (!reach[i]) continue;
+    if (s.walls[i] || s.boxes[i]) continue; // must be standable
+    candidates.push(i);
   }
+  if (candidates.length === 0) return null;
+
+  shuffle(candidates);
+
+  const dirs: Dir[] = ["U", "D", "L", "R"];
+
+  for (const p of candidates) {
+    const { x, y } = xy(p, w);
+
+    shuffle(dirs);
+    for (const dir of dirs) {
+      const dd = DIRS[dir];
+      const bx = x + dd.dx;
+      const by = y + dd.dy;
+      const backx = x - dd.dx;
+      const backy = y - dd.dy;
+      if (bx < 0 || bx >= w || by < 0 || by >= h) continue;
+      if (backx < 0 || backx >= w || backy < 0 || backy >= h) continue;
+
+      const bi = by * w + bx;
+      const backi = backy * w + backx;
+
+      // Pull preconditions
+      if (!s.boxes[bi]) continue;                 // must have a box to pull
+      if (s.walls[backi] || s.boxes[backi]) continue; // back cell must be empty
+
+      const ns = cloneLevel(s);
+      ns.player = p;          // player must be at p (reachable)
+      ns.boxes[bi] = 0;
+      ns.boxes[p] = 1;
+      ns.player = backi;
+      return ns;
+    }
+  }
+
   return null;
 }
 

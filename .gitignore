@@ -3,6 +3,7 @@ node_modules/
 dist/
 dist-scripts/
 .env
+coverage/
 
 # OS / Editor
 .DS_Store

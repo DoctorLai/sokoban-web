@@ -5,6 +5,8 @@ import level3 from "./world1-003.json";
 import level4 from "./world1-004.json";
 import level5 from "./world1-005.json";
 import level6 from "./world1-006.json";
+import level7 from "./world1-007.json";
+import level8 from "./world1-008.json";
 import level9 from "./world1-009.json";
 
 export const LEVELS: LevelJson[] = [

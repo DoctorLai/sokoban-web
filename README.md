@@ -29,7 +29,6 @@ And you will see local server is up.
 
 ```bash
 npm run build
-npm run preview
 ```
 
 Deploy the `dist/` folder to GitHub Pages.
