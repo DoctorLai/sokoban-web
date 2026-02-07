@@ -164,7 +164,7 @@ pre {
 
 #dpad {
   position: fixed;
-  right: 14px;
+  left: 14px;
   bottom: 14px;
   z-index: 9999;
 
