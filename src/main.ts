@@ -254,7 +254,7 @@ function setupKeyboard() {
     if (k === "arrowright" || k === "d") return (e.preventDefault(), move("R"));
     if (k === "z") return (e.preventDefault(), undo());
     if (k === "y") return (e.preventDefault(), redo());
-    if (k === "r") return (e.preventDefault(), reset());
+    if (k === "r" || k === " ") return (e.preventDefault(), reset());
   });
 }
 
