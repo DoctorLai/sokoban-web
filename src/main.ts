@@ -5,7 +5,7 @@ import { parseLevel, cloneLevel } from "./core/level";
 import { Renderer } from "./core/render";
 import { applyMove, History, isWin, formatSteps } from "./core/state";
 import { solveMinPushes } from "./solver/solver";
-import { DEFAULT_ARENA, generateOne } from "./generator/generate";
+// import { DEFAULT_ARENA, generateOne } from "./generator/generate";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const renderer = new Renderer(canvas);
