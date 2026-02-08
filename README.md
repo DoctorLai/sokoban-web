@@ -3,7 +3,7 @@
 
 Published to [https://doctorlai.github.io/sokoban-web/](https://doctorlai.github.io/sokoban-web/)
 
-<img width="1121" height="586" alt="image" src="https://github.com/user-attachments/assets/f3dd0837-7425-4ca3-b530-499d6b9c629a" />
+<img width="995" height="557" alt="image" src="https://github.com/user-attachments/assets/a6af9faa-cc13-46c1-9180-a7be78600b16" />
 
 A minimal Sokoban (Push Box) web game:
 - Pure front-end (Vite + TypeScript), suitable for GitHub Pages
@@ -69,20 +69,11 @@ Run `npm run test:coverage`
 
 Feel free to fork this project and submit issues or pull requests for improvements!
 
-1. Fork the repository.
-2. Create a feature branch:
-```bash
-git checkout -b feature-branch
-```
-3. Commit your changes:
-```bash
-git commit -am 'Add new feature'
-```
-4. Push to the branch:
-```bash
-git push origin feature-branch
-```
-5. Open a pull request.
+- Fork the repository.
+- Create a feature branch: `git checkout -b feature-branch`
+- Commit your changes: `git commit -am 'Add new feature'`
+- Push to the branch: `git push origin feature-branch`
+- Open a pull request.
 
 ## License
 
@@ -96,5 +87,4 @@ Here is the [AI generated wiki](https://deepwiki.com/DoctorLai/sokoban-web)
 
 - Built with ❤️ by [@justyy](https://github.com/doctorlai)
 - Initial Boilerplate code contributed by ChatGPT 5.2.
-- If you found this tool useful, consider buying me a [coffee](https://justyy.com/out/bmc) ☕
-
+- If you found this tool useful, consider buying me a [coffee](https://justyy.com/out/bmc) ☕ Thank you!
