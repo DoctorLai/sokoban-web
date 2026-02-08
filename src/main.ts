@@ -5,6 +5,7 @@ import { parseLevel, cloneLevel } from "./core/level";
 import { Renderer } from "./core/render";
 import { applyMove, History, isWin, formatSteps } from "./core/state";
 import { solveMinPushes } from "./solver/solver";
+import { sleep } from "./core/utility";
 // import { DEFAULT_ARENA, generateOne } from "./generator/generate";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
@@ -186,10 +187,6 @@ async function playSolution() {
   setBadge(isWin(state) ? "✅ Solved!" : "Done");
 }
 
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 function setupLevelSelect() {
   levelSelect.innerHTML = "";
   for (const lv of LEVELS) {
@@ -245,10 +242,6 @@ function setupButtons() {
   //     setBadge("Generate failed");
   //     solEl.textContent = "Could not generate a level matching the difficulty range. Try increasing steps or changing box count.";
   //   });
-}
-
-function clamp(v: number, lo: number, hi: number): number {
-  return Math.max(lo, Math.min(hi, v));
 }
 
 function setupKeyboard() {
