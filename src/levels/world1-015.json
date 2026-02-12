@@ -1,0 +1,12 @@
+{
+  "id": "world1-015",
+  "title": "Two Sum v4",
+  "map": [
+    "#######",
+    "#+*   #",
+    "# $   #",
+    "####  #",
+    "   ####"
+  ],
+  "solution": "dRRuLrrrddlUruLL"
+}
