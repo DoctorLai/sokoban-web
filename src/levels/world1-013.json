@@ -1,0 +1,13 @@
+{
+  "id": "world1-013",
+  "title": "Three Sum v4",
+  "map": [
+    "############",
+    "#+*.      ##",
+    "######$$   #",
+    "     #     #",
+    "     #    ##",
+    "     ###### "
+  ],
+  "solution": "RRRRRRDrruLLLLLLLrrrrrdrddlluUruLLLLrrrdddrUUruLLLL"
+}
