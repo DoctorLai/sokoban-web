@@ -17,6 +17,8 @@ import level13 from "./world1-013.json";
 import level14 from "./world1-014.json";
 import level15 from "./world1-015.json";
 import level16 from "./world1-016.json";
+import level17 from "./world1-017.json";
+import level18 from "./world1-018.json";
 
 export const LEVELS: LevelJson[] = [
   level1,
@@ -37,4 +39,6 @@ export const LEVELS: LevelJson[] = [
   level14,
   level15,
   level16,
+  level17,
+  level18,
 ];
