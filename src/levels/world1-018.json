@@ -1,0 +1,14 @@
+{
+  "id": "world1-018",
+  "title": "Blocking One",
+  "map": [
+    "  #####",
+    "  #  @#",
+    "###$$ #",
+    "#   ###",
+    "#     #",
+    "# . . #",
+    "#######"
+  ],
+  "solution": "llDDlddrruLuuurrdLulDDDullddrRuulD"
+}
