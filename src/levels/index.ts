@@ -1,44 +1,6 @@
 import type { LevelJson } from "../types";
-import level1 from "./world1-001.json";
-import level2 from "./world1-002.json";
-import level3 from "./world1-003.json";
-import level4 from "./world1-004.json";
-import level5 from "./world1-005.json";
-import level6 from "./world1-006.json";
-import level7 from "./world1-007.json";
-import level8 from "./world1-008.json";
-import gen1770292114393 from "./gen-1770292114393.json";
-import gen1770292209337 from "./gen-1770292209337.json";
-import level9 from "./world1-009.json";
-import level10 from "./world1-010.json";
-import level11 from "./world1-011.json";
-import level12 from "./world1-012.json";
-import level13 from "./world1-013.json";
-import level14 from "./world1-014.json";
-import level15 from "./world1-015.json";
-import level16 from "./world1-016.json";
-import level17 from "./world1-017.json";
-import level18 from "./world1-018.json";
 
-export const LEVELS: LevelJson[] = [
-  level1,
-  level2,
-  level3,
-  level4,
-  level5,
-  level6,
-  level7,
-  level8,
-  gen1770292114393,
-  gen1770292209337,
-  level9,
-  level10,
-  level11,
-  level12,
-  level13,
-  level14,
-  level15,
-  level16,
-  level17,
-  level18,
-];
+// import all JSON files recursively in levels folder and subfolders
+const modules = import.meta.glob<LevelJson>("./**/*.json", { eager: true });
+
+export const LEVELS: LevelJson[] = Object.values(modules);
