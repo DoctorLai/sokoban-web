@@ -1,0 +1,13 @@
+{
+  "id": "world1-020",
+  "title": "Not So Simple",
+  "map": [
+    "######",
+    "# @$.#",
+    "#    #",
+    "# $#.#",
+    "#    #",
+    "######"
+  ],
+  "solution": "drruLdllddrUluRRurDllluRR"
+}

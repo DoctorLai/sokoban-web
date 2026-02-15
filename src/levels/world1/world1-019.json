@@ -1,0 +1,14 @@
+{
+  "id": "world1-019",
+  "title": "Simple Push",
+  "map": [
+    "######",
+    "##   .#",
+    "#@  ###",
+    "#   * #",
+    "#   $ #",
+    "#     #",
+    "#######"
+  ],
+  "solution": "dddrrrruuLrddlluUUluRRlddddrU"
+}
