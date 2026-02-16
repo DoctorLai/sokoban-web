@@ -6,23 +6,20 @@ import { isCornerDeadlock } from "./deadlock";
 import { reachable, shortestWalkPath } from "./reach";
 
 /**
- * Sokoban solver that minimizes number of pushes (usually the most practical).
- *
- * State graph:
- * - Node = (playerPos, boxesPositions)
- * - Edge = "one box push"
- *   We first compute all squares the player can reach without moving boxes.
- *   Then any box that has a reachable 'behind' cell and an empty 'ahead' cell is pushable.
- *
- * For each push edge, we also reconstruct a concrete walking path (for UI playback).
+ * Optimized push-minimizing Sokoban solver.
+ * Improvements:
+ * - State key = boxes only (BigInt bitboard)
+ * - No string encoding
+ * - Reuse scratch GameState
+ * - Avoid repeated cloning
  */
+
 export async function solveMinPushes(
   initial: GameState,
   maxExpanded = 200_000,
 ): Promise<SolveResult> {
   const t0 = performance.now();
 
-  // Quick prune
   if (isCornerDeadlock(initial)) {
     return {
       ok: false,
@@ -30,6 +27,7 @@ export async function solveMinPushes(
       timeMs: performance.now() - t0,
     };
   }
+
   if (isWin(initial)) {
     return {
       ok: true,
@@ -40,47 +38,55 @@ export async function solveMinPushes(
     };
   }
 
-  const w = initial.w,
-    h = initial.h;
+  const w = initial.w;
+  const h = initial.h;
   const N = w * h;
 
-  const encode = (player: number, boxes: Uint8Array): string => {
-    // Compact-ish key: player + bit positions.
-    // For small boards this is fine. You can optimize to BigInt bitsets later.
-    let s = player.toString(36) + "|";
-    for (let i = 0; i < N; i++) if (boxes[i]) s += i.toString(36) + ",";
-    return s;
+  // ---------- Bitboard encoding (boxes only) ----------
+  const encodeBoxes = (boxes: Uint8Array): bigint => {
+    let bits = 0n;
+    for (let i = 0; i < N; i++) {
+      if (boxes[i]) bits |= 1n << BigInt(i);
+    }
+    return bits;
   };
 
   type Node = {
+    key: bigint;
     player: number;
     boxes: Uint8Array;
-    parentKey: string | null;
-    // push metadata to reconstruct (walking path + push dir)
-    walk: string; // lower-case walk path before the push
-    pushDir: Dir | null; // null for root
+    parent: Node | null;
+    walk: string;
+    pushDir: Dir | null;
   };
 
-  const q: Node[] = [];
+  const queue: Node[] = [];
   let qs = 0;
+  let expanded = 0;
 
-  const rootKey = encode(initial.player, initial.boxes);
-  const seen = new Map<string, Node>();
+  const seen = new Map<bigint, Node>();
+
   const root: Node = {
+    key: encodeBoxes(initial.boxes),
     player: initial.player,
     boxes: initial.boxes.slice(),
-    parentKey: null,
+    parent: null,
     walk: "",
     pushDir: null,
   };
-  seen.set(rootKey, root);
-  q.push(root);
 
-  let expanded = 0;
+  queue.push(root);
+  seen.set(root.key, root);
 
-  while (qs < q.length) {
-    const cur = q[qs++];
+  // ---------- Reusable scratch state ----------
+  const scratch = cloneLevel(initial);
+
+  const DIR_LIST: Dir[] = ["U", "D", "L", "R"];
+
+  while (qs < queue.length) {
+    const cur = queue[qs++];
     expanded++;
+
     if (expanded > maxExpanded) {
       return {
         ok: false,
@@ -90,22 +96,20 @@ export async function solveMinPushes(
       };
     }
 
-    // Build a mutable state for reachability + pathfinding
-    const s = cloneLevel(initial);
-    s.player = cur.player;
-    s.boxes = cur.boxes;
+    // Reuse scratch instead of cloning
+    scratch.player = cur.player;
+    scratch.boxes.set(cur.boxes);
 
-    const reach = reachable(s);
+    const reach = reachable(scratch);
 
-    // Enumerate pushable boxes
     for (let bi = 0; bi < N; bi++) {
       if (!cur.boxes[bi]) continue;
 
       const { x, y } = xy(bi, w);
-      for (const [dir, dd] of Object.entries(DIRS) as [
-        Dir,
-        { dx: number; dy: number },
-      ][]) {
+
+      for (const dir of DIR_LIST) {
+        const dd = DIRS[dir];
+
         const behindX = x - dd.dx;
         const behindY = y - dd.dy;
         const aheadX = x + dd.dx;
@@ -113,56 +117,64 @@ export async function solveMinPushes(
 
         if (behindX < 0 || behindX >= w || behindY < 0 || behindY >= h)
           continue;
+
         if (aheadX < 0 || aheadX >= w || aheadY < 0 || aheadY >= h) continue;
 
         const behind = behindY * w + behindX;
         const ahead = aheadY * w + aheadX;
 
-        // Need player reachable behind the box, and ahead cell must be empty floor (not wall, not box)
         if (!reach[behind]) continue;
         if (initial.walls[ahead]) continue;
         if (cur.boxes[ahead]) continue;
 
-        // Reconstruct walking path from cur.player to behind
-        const walkPath = shortestWalkPath(s, cur.player, behind);
-        if (walkPath == null) continue;
+        const walkPath = shortestWalkPath(scratch, cur.player, behind);
+        if (!walkPath) continue;
 
-        // Create next node by performing the push
-        const nextBoxes = cur.boxes.slice();
-        nextBoxes[bi] = 0;
-        nextBoxes[ahead] = 1;
-        const nextPlayer = bi; // after pushing, player stands where the box was
+        // ---- Apply push into scratch ----
+        scratch.boxes[bi] = 0;
+        scratch.boxes[ahead] = 1;
 
-        const nextState = cloneLevel(initial);
-        nextState.player = nextPlayer;
-        nextState.boxes = nextBoxes;
+        const nextPlayer = bi;
+        scratch.player = nextPlayer;
 
-        if (isCornerDeadlock(nextState)) continue;
-
-        const key = encode(nextPlayer, nextBoxes);
-        if (seen.has(key)) continue;
-
-        const node: Node = {
-          player: nextPlayer,
-          boxes: nextBoxes,
-          parentKey: encode(cur.player, cur.boxes),
-          walk: walkPath,
-          pushDir: dir,
-        };
-        seen.set(key, node);
-
-        if (isWin(nextState)) {
-          const steps = reconstructSteps(seen, key, initial);
-          return {
-            ok: true,
-            minPushes: countPushes(steps),
-            steps,
-            expanded,
-            timeMs: performance.now() - t0,
-          };
+        if (isCornerDeadlock(scratch)) {
+          // revert
+          scratch.boxes[bi] = 1;
+          scratch.boxes[ahead] = 0;
+          continue;
         }
 
-        q.push(node);
+        const nextBoxes = scratch.boxes.slice();
+        const nextKey = encodeBoxes(nextBoxes);
+
+        if (!seen.has(nextKey)) {
+          const node: Node = {
+            key: nextKey,
+            player: nextPlayer,
+            boxes: nextBoxes,
+            parent: cur,
+            walk: walkPath,
+            pushDir: dir,
+          };
+
+          if (isWin(scratch)) {
+            const steps = reconstructSteps(node, initial);
+            return {
+              ok: true,
+              minPushes: countPushes(steps),
+              steps,
+              expanded,
+              timeMs: performance.now() - t0,
+            };
+          }
+
+          seen.set(nextKey, node);
+          queue.push(node);
+        }
+
+        // revert push
+        scratch.boxes[bi] = 1;
+        scratch.boxes[ahead] = 0;
       }
     }
   }
@@ -179,42 +191,35 @@ function countPushes(steps: StepInfo[]): number {
   return steps.reduce((acc, s) => acc + (s.pushed ? 1 : 0), 0);
 }
 
-/**
- * Reconstruct full move list (walk + push) from parent pointers.
- */
-function reconstructSteps(
-  seen: Map<string, any>,
-  goalKey: string,
-  initial: GameState,
-): StepInfo[] {
+function reconstructSteps(goalNode: any, initial: GameState): StepInfo[] {
   const chain: any[] = [];
-  let k: string | null = goalKey;
-  while (k) {
-    const n = seen.get(k);
-    chain.push(n);
-    k = n.parentKey;
-  }
-  chain.reverse(); // root -> goal
+  let n = goalNode;
 
-  // Now build full steps by simulating each segment:
+  while (n) {
+    chain.push(n);
+    n = n.parent;
+  }
+
+  chain.reverse();
+
   const out: StepInfo[] = [];
   const s = cloneLevel(initial);
 
   for (let i = 1; i < chain.length; i++) {
-    const n = chain[i];
-    // 1) walk
-    for (const ch of n.walk) {
+    const node = chain[i];
+
+    for (const ch of node.walk) {
       const dir = chToDir(ch);
       out.push({ dir, pushed: false });
-      // simulate on s
       applyWalkOnly(s, dir);
     }
-    // 2) push
-    if (n.pushDir) {
-      out.push({ dir: n.pushDir, pushed: true });
-      applyPush(s, n.pushDir);
+
+    if (node.pushDir) {
+      out.push({ dir: node.pushDir, pushed: true });
+      applyPush(s, node.pushDir);
     }
   }
+
   return out;
 }
 
@@ -234,23 +239,20 @@ function chToDir(ch: string): Dir {
 }
 
 function applyWalkOnly(s: GameState, dir: Dir) {
-  // Safe: walk paths were computed without moving boxes
   const w = s.w;
   const { x, y } = xy(s.player, w);
   const dd = DIRS[dir];
-  const nx = x + dd.dx;
-  const ny = y + dd.dy;
-  const ni = ny * w + nx;
-  s.player = ni;
+  s.player = (y + dd.dy) * w + (x + dd.dx);
 }
 
 function applyPush(s: GameState, dir: Dir) {
   const w = s.w;
   const { x, y } = xy(s.player, w);
   const dd = DIRS[dir];
+
   const boxI = (y + dd.dy) * w + (x + dd.dx);
   const aheadI = (y + 2 * dd.dy) * w + (x + 2 * dd.dx);
-  // assume valid push
+
   s.boxes[boxI] = 0;
   s.boxes[aheadI] = 1;
   s.player = boxI;

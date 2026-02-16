@@ -1,0 +1,14 @@
+{
+  "id": "world2-001",
+  "title": "Five Five",
+  "map": [
+    "#######",
+    "#     #",
+    "#     #",
+    "#  #  #",
+    "#$$$$$#",
+    "#..+..#",
+    "#######"
+  ],
+  "solution": "llUUruulDrdDuurrdDurDuulllddldRuuulDDuurrrddLruulldD"
+}
