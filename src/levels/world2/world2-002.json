@@ -1,0 +1,17 @@
+{
+  "id": "world2-002",
+  "title": "Double Room",
+  "map": [
+    "##########",
+    "#        #",
+    "# #$$$$# #",
+    "# $....$ #",
+    "# $....$ #",
+    "# $....$ #",
+    "# $....$ #",
+    "# #$$$$# #",
+    "#   @    #",
+    "##########"    
+  ],
+  "solution": "llUUruulDrdDuurrdDurDuulllddldRuuulDDuurrrddLruulldD"
+}
