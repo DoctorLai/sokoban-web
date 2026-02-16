@@ -13,11 +13,13 @@ describe("Solver sanity", () => {
   });
 
   it("returns ok with 0 pushes when already solved (box on goal)", async () => {
+    // '*' usually means box-on-goal in Sokoban ASCII conventions
     const s = stateFromAscii(["#####", "#.@ #", "# * #", "#   #", "#####"]);
 
     const res = await solveMinPushes(s, 50_000);
     expect(res.ok).toBe(true);
     expect(res.minPushes).toBe(0);
+    // steps may be empty/null depending on implementation; don't force it
     if (res.steps) expect(res.steps.length).toBe(0);
   });
 
@@ -27,6 +29,24 @@ describe("Solver sanity", () => {
     const res = await solveMinPushes(s, 50_000);
     expect(res.ok).toBe(true);
     expect(res.minPushes).toBe(0);
+  });
+
+  it("finds exact min pushes in a straight-line push (1)", async () => {
+    // 1 push: push $ right onto .
+    const s = stateFromAscii(["#####", "#@$.#", "#####"]);
+
+    const res = await solveMinPushes(s, 50_000);
+    expect(res.ok).toBe(true);
+    expect(res.minPushes).toBe(1);
+  });
+
+  it("finds exact min pushes in a straight-line push (2)", async () => {
+    // 2 pushes: stand left of $, push right twice onto .
+    const s = stateFromAscii(["#######", "#@ $ .#", "#     #", "#######"]);
+
+    const res = await solveMinPushes(s, 200_000);
+    expect(res.ok).toBe(true);
+    expect(res.minPushes).toBe(2);
   });
 
   it("returns not ok for an unsolvable puzzle (box stuck in corner, goal elsewhere)", async () => {
@@ -54,6 +74,7 @@ describe("Solver sanity", () => {
     ]);
 
     const res = await solveMinPushes(s, 200_000);
+    // Depending on your rules, this may or may not be solvable. Just assert it doesn't crash.
     expect(typeof res.ok).toBe("boolean");
     expect(
       typeof res.minPushes === "number" || res.minPushes === undefined,
@@ -85,6 +106,7 @@ describe("Solver sanity", () => {
     ]);
 
     const res = await solveMinPushes(s, 500_000);
+    // don't hardcode minPushes unless you're very sure; just sanity-check shape
     expect(res.ok).toBe(true);
     expect(res.minPushes).toBeGreaterThanOrEqual(1);
     expect(res.steps && res.steps.length).toBeGreaterThan(0);

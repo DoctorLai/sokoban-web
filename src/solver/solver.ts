@@ -3,16 +3,7 @@ import { cloneLevel } from "../core/level";
 import { DIRS, xy } from "../core/grid";
 import { isWin } from "../core/state";
 import { isCornerDeadlock } from "./deadlock";
-import { reachable, shortestWalkPath } from "./reach";
-
-/**
- * Optimized push-minimizing Sokoban solver.
- * Improvements:
- * - State key = boxes only (BigInt bitboard)
- * - No string encoding
- * - Reuse scratch GameState
- * - Avoid repeated cloning
- */
+import { buildWalkTree, walkPathFromTree } from "./reach";
 
 export async function solveMinPushes(
   initial: GameState,
@@ -20,10 +11,20 @@ export async function solveMinPushes(
 ): Promise<SolveResult> {
   const t0 = performance.now();
 
+  if (maxExpanded <= 0) {
+    return {
+      ok: false,
+      reason: "Search limit exceeded.",
+      expanded: 0,
+      timeMs: performance.now() - t0,
+    };
+  }
+
   if (isCornerDeadlock(initial)) {
     return {
       ok: false,
       reason: "Immediate deadlock detected (corner).",
+      expanded: 0,
       timeMs: performance.now() - t0,
     };
   }
@@ -42,7 +43,7 @@ export async function solveMinPushes(
   const h = initial.h;
   const N = w * h;
 
-  // ---------- Bitboard encoding (boxes only) ----------
+  // -------- Bitboard encoding (boxes only) --------
   const encodeBoxes = (boxes: Uint8Array): bigint => {
     let bits = 0n;
     for (let i = 0; i < N; i++) {
@@ -52,55 +53,75 @@ export async function solveMinPushes(
   };
 
   type Node = {
-    key: bigint;
+    key: string;
     player: number;
     boxes: Uint8Array;
+    boxesBits: bigint;
     parent: Node | null;
-    walk: string;
-    pushDir: Dir | null;
+    walk: string; // walk before the push (from parent state)
+    pushDir: Dir | null; // push taken from parent to reach this node
   };
+
+  const DIR_LIST: Dir[] = ["U", "D", "L", "R"];
 
   const queue: Node[] = [];
   let qs = 0;
   let expanded = 0;
 
-  const seen = new Map<bigint, Node>();
+  const seen = new Set<string>();
+
+  const rootBoxes = initial.boxes.slice();
+  const rootBits = encodeBoxes(rootBoxes);
+  const rootKey = rootBits.toString() + "|" + initial.player;
 
   const root: Node = {
-    key: encodeBoxes(initial.boxes),
+    key: rootKey,
     player: initial.player,
-    boxes: initial.boxes.slice(),
+    boxes: rootBoxes,
+    boxesBits: rootBits,
     parent: null,
     walk: "",
     pushDir: null,
   };
 
   queue.push(root);
-  seen.set(root.key, root);
+  seen.add(rootKey);
 
-  // ---------- Reusable scratch state ----------
+  // -------- reusable scratch state --------
   const scratch = cloneLevel(initial);
 
-  const DIR_LIST: Dir[] = ["U", "D", "L", "R"];
-
   while (qs < queue.length) {
-    const cur = queue[qs++];
-    expanded++;
-
-    if (expanded > maxExpanded) {
+    // budget check: each dequeue counts as one "expanded"
+    if (expanded >= maxExpanded) {
       return {
         ok: false,
-        reason: `Search limit exceeded (expanded>${maxExpanded}).`,
+        reason: "Search limit exceeded.",
         expanded,
         timeMs: performance.now() - t0,
       };
     }
 
-    // Reuse scratch instead of cloning
+    const cur = queue[qs++];
+    expanded++;
+
+    // materialize current state into scratch
     scratch.player = cur.player;
     scratch.boxes.set(cur.boxes);
 
-    const reach = reachable(scratch);
+    // win check happens when dequeued/expanded (not when generated)
+    if (isWin(scratch)) {
+      const steps = reconstructSteps(cur, initial);
+      return {
+        ok: true,
+        minPushes: countPushes(steps),
+        steps,
+        expanded,
+        timeMs: performance.now() - t0,
+      };
+    }
+
+    // One BFS tree for all candidate pushes from this state
+    const tree = buildWalkTree(scratch, cur.player);
 
     for (let bi = 0; bi < N; bi++) {
       if (!cur.boxes[bi]) continue;
@@ -117,64 +138,60 @@ export async function solveMinPushes(
 
         if (behindX < 0 || behindX >= w || behindY < 0 || behindY >= h)
           continue;
-
         if (aheadX < 0 || aheadX >= w || aheadY < 0 || aheadY >= h) continue;
 
         const behind = behindY * w + behindX;
         const ahead = aheadY * w + aheadX;
 
-        if (!reach[behind]) continue;
+        if (!tree.reach[behind]) continue;
         if (initial.walls[ahead]) continue;
         if (cur.boxes[ahead]) continue;
 
-        const walkPath = shortestWalkPath(scratch, cur.player, behind);
-        if (!walkPath) continue;
+        const walkPath = walkPathFromTree(tree, cur.player, behind);
+        if (walkPath == null) continue;
 
-        // ---- Apply push into scratch ----
+        // ----- apply push on scratch -----
         scratch.boxes[bi] = 0;
         scratch.boxes[ahead] = 1;
+        scratch.player = bi;
 
-        const nextPlayer = bi;
-        scratch.player = nextPlayer;
-
+        // deadlock prune
         if (isCornerDeadlock(scratch)) {
           // revert
           scratch.boxes[bi] = 1;
           scratch.boxes[ahead] = 0;
+          scratch.player = cur.player; // restore
           continue;
         }
 
         const nextBoxes = scratch.boxes.slice();
-        const nextKey = encodeBoxes(nextBoxes);
+        const nextPlayer = scratch.player;
+
+        // fast bit update
+        const nextBits =
+          cur.boxesBits ^ (1n << BigInt(bi)) ^ (1n << BigInt(ahead));
+
+        const nextKey = nextBits.toString() + "|" + nextPlayer;
 
         if (!seen.has(nextKey)) {
           const node: Node = {
             key: nextKey,
             player: nextPlayer,
             boxes: nextBoxes,
+            boxesBits: nextBits,
             parent: cur,
             walk: walkPath,
             pushDir: dir,
           };
 
-          if (isWin(scratch)) {
-            const steps = reconstructSteps(node, initial);
-            return {
-              ok: true,
-              minPushes: countPushes(steps),
-              steps,
-              expanded,
-              timeMs: performance.now() - t0,
-            };
-          }
-
-          seen.set(nextKey, node);
+          seen.add(nextKey);
           queue.push(node);
         }
 
         // revert push
         scratch.boxes[bi] = 1;
         scratch.boxes[ahead] = 0;
+        scratch.player = cur.player; // restore
       }
     }
   }
