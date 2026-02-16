@@ -61,11 +61,11 @@ describe("solveMinPushes", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
 
-    expect(res.steps.length).toBeGreaterThan(0);
+    expect(res.steps?.length).toBeGreaterThan(0);
     expect(res.minPushes).toBe(1);
-    expect(countPushed(res.steps)).toBe(1);
+    expect(countPushed(res.steps!)).toBe(1);
 
-    const end = replaySteps(s, res.steps);
+    const end = replaySteps(s, res.steps!);
     expect(isWin(end)).toBe(true);
   });
 
@@ -84,9 +84,9 @@ describe("solveMinPushes", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
 
-    expect(res.minPushes).toBe(countPushed(res.steps));
+    expect(res.minPushes).toBe(countPushed(res.steps!));
 
-    const end = replaySteps(s, res.steps);
+    const end = replaySteps(s, res.steps!);
     expect(isWin(end)).toBe(true);
   });
 
@@ -97,7 +97,7 @@ describe("solveMinPushes", () => {
     expect(res.ok).toBe(false);
     if (res.ok) return;
 
-    expect(res.reason.length).toBeGreaterThan(0);
+    expect(res.reason?.length).toBeGreaterThan(0);
   });
 });
 
@@ -109,7 +109,7 @@ describe("Solver sanity", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
 
-    expect(res.steps.length).toBeGreaterThan(0);
+    expect(res.steps?.length).toBeGreaterThan(0);
     expect(res.minPushes).toBeGreaterThanOrEqual(1);
   });
 
@@ -122,7 +122,7 @@ describe("Solver sanity", () => {
     if (!res.ok) return;
 
     expect(res.minPushes).toBe(0);
-    expect(res.steps.length).toBe(0);
+    expect(res.steps?.length).toBe(0);
   });
 
   it("returns ok with 0 pushes when there are no boxes", async () => {
@@ -184,7 +184,7 @@ describe("Solver sanity", () => {
     expect(typeof res.ok).toBe("boolean");
     expect(typeof res.timeMs).toBe("number");
     if (res.ok) {
-      expect(res.steps.length).toBeGreaterThanOrEqual(0);
+      expect(res.steps?.length).toBeGreaterThanOrEqual(0);
       expect(res.minPushes).toBeGreaterThanOrEqual(0);
     }
   });
@@ -221,9 +221,9 @@ describe("Solver sanity", () => {
     if (!res.ok) return;
 
     expect(res.minPushes).toBeGreaterThanOrEqual(1);
-    expect(res.steps.length).toBeGreaterThan(0);
+    expect(res.steps?.length).toBeGreaterThan(0);
 
-    const end = replaySteps(s, res.steps);
+    const end = replaySteps(s, res.steps!);
     expect(isWin(end)).toBe(true);
   });
 });

@@ -16,6 +16,7 @@ export async function solveMinPushes(
       ok: false,
       reason: "Search limit exceeded.",
       expanded: 0,
+      steps: [],
       timeMs: performance.now() - t0,
     };
   }
@@ -25,6 +26,7 @@ export async function solveMinPushes(
       ok: false,
       reason: "Immediate deadlock detected (corner).",
       expanded: 0,
+      steps: [],
       timeMs: performance.now() - t0,
     };
   }
@@ -97,6 +99,7 @@ export async function solveMinPushes(
         ok: false,
         reason: "Search limit exceeded.",
         expanded,
+        steps: [],
         timeMs: performance.now() - t0,
       };
     }
@@ -200,6 +203,7 @@ export async function solveMinPushes(
     ok: false,
     reason: "No solution found.",
     expanded,
+    steps: [],
     timeMs: performance.now() - t0,
   };
 }
