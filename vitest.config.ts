@@ -8,10 +8,10 @@ export default defineConfig({
       reporter: ["text", "html"],
       // Basic minimums (start low, raise over time)
       thresholds: {
-        statements: 70,
-        branches: 60,
-        functions: 60,
-        lines: 70,
+        statements: 83,
+        branches: 77,
+        functions: 77,
+        lines: 86,
       },
       // Optional: don't count trivial files
       exclude: [
