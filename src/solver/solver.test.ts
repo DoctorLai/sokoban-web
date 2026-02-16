@@ -55,8 +55,6 @@ describe("Solver sanity", () => {
     const res = await solveMinPushes(s, 50_000);
 
     expect(res.ok).toBe(false);
-    // if you expose a reason field, you can assert it here
-    // expect(res.reason).toMatch(/unsolv/i);
   });
 
   it("returns not ok when search budget is too small", async () => {
