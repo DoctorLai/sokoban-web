@@ -1,0 +1,14 @@
+{
+  "id": "world2-010",
+  "title": "Little Cross",
+  "map": [
+    "  ###  ",
+    " ##.## ",
+    "##.$.##",
+    "#.$$$.#",
+    "## $ ##",
+    " # @ # ",
+    " ##### "
+  ],
+  "solution": "luUddrruULUdLddrUluRR"
+}
