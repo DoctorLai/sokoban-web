@@ -27,6 +27,7 @@ const badge = document.getElementById("statusBadge") as HTMLSpanElement;
 
 let currentLevel: LevelJson | null = null;
 let state: GameState | null = null;
+let levelInitial: GameState | null = null; // true initial state for current level
 let history = new History();
 
 let solutionSteps: StepInfo[] | null = null;
@@ -57,6 +58,9 @@ function loadLevel(lv: LevelJson) {
   setLevelToURL(lv.id);
 
   const parsed = parseLevel(lv);
+
+  levelInitial = cloneLevel(parsed);
+  state = cloneLevel(parsed);
   state = parsed;
 
   history = new History();
@@ -116,8 +120,15 @@ function move(dir: Dir) {
 }
 
 function reset() {
-  if (!state || playing) return;
-  history.reset(state);
+  if (playing) return;
+  if (!levelInitial) return;
+
+  // reset always means “back to the level’s real initial state”
+  state = cloneLevel(levelInitial);
+
+  history = new History();
+  history.init(state);
+
   solutionSteps = null;
   solEl.textContent = "";
   setBadge("Ready");
@@ -311,3 +322,122 @@ setupLevelSelect();
 setupButtons();
 setupKeyboard();
 render();
+
+// --- Save/Load (localStorage) ---
+// Saves ONLY current GameState (typed arrays preserved). Undo/redo resets on load.
+
+const SAVE_PREFIX = "sokoban:v1:";
+
+function saveKey(levelId: string) {
+  return `${SAVE_PREFIX}${levelId}`;
+}
+
+type EncU8 = { __t: "u8"; data: number[] };
+type EncState = any;
+
+type SavedGame = {
+  v: 1;
+  levelId: string;
+  state: EncState; // encoded (JSON-safe)
+  time: number;
+};
+
+// Encode Uint8Array so JSON can round-trip it
+function encodeValue(v: any): any {
+  if (v instanceof Uint8Array) {
+    return { __t: "u8", data: Array.from(v) } satisfies EncU8;
+  }
+  if (Array.isArray(v)) return v.map(encodeValue);
+  if (v && typeof v === "object") {
+    const out: any = {};
+    for (const [k, val] of Object.entries(v)) out[k] = encodeValue(val);
+    return out;
+  }
+  return v;
+}
+
+// Decode back into Uint8Array
+function decodeValue(v: any): any {
+  if (v && typeof v === "object" && v.__t === "u8" && Array.isArray(v.data)) {
+    return new Uint8Array(v.data);
+  }
+  if (Array.isArray(v)) return v.map(decodeValue);
+  if (v && typeof v === "object") {
+    const out: any = {};
+    for (const [k, val] of Object.entries(v)) out[k] = decodeValue(val);
+    return out;
+  }
+  return v;
+}
+
+function getCurrentLevelId(): string {
+  return currentLevel?.id ?? levelSelect.value ?? "unknown-level";
+}
+
+function saveGameForLevel(levelId: string) {
+  if (!state) throw new Error("No active state");
+  const payload: SavedGame = {
+    v: 1,
+    levelId,
+    state: encodeValue(state),
+    time: Date.now(),
+  };
+  localStorage.setItem(saveKey(levelId), JSON.stringify(payload));
+}
+
+function loadGameForLevel(levelId: string): boolean {
+  const raw = localStorage.getItem(saveKey(levelId));
+  if (!raw) return false;
+
+  let parsed: SavedGame;
+  try {
+    parsed = JSON.parse(raw) as SavedGame;
+  } catch {
+    return false;
+  }
+
+  if (!parsed || parsed.v !== 1 || parsed.levelId !== levelId) return false;
+
+  const decoded = decodeValue(parsed.state) as GameState;
+
+  // quick sanity check: boxes must be Uint8Array
+  if (
+    !(decoded as any)?.boxes ||
+    !((decoded as any).boxes instanceof Uint8Array)
+  ) {
+    console.warn("Loaded state missing Uint8Array boxes:", decoded);
+    return false;
+  }
+
+  state = decoded;
+
+  // reset history from loaded state
+  history = new History();
+  history.init(state);
+
+  solutionSteps = null;
+  solEl.textContent = "";
+
+  render();
+  return true;
+}
+
+const btnSave = document.getElementById("btnSave") as HTMLButtonElement | null;
+const btnLoad = document.getElementById("btnLoad") as HTMLButtonElement | null;
+
+btnSave?.addEventListener("click", () => {
+  const levelId = getCurrentLevelId();
+  try {
+    saveGameForLevel(levelId);
+    setBadge(`Saved (${levelId})`);
+  } catch (e) {
+    console.error(e);
+    setBadge("Save failed");
+  }
+});
+
+btnLoad?.addEventListener("click", () => {
+  const levelId = getCurrentLevelId();
+  const ok = loadGameForLevel(levelId);
+  setBadge(ok ? `Loaded (${levelId})` : `No save (${levelId})`);
+});
