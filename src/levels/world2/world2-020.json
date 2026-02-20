@@ -1,0 +1,13 @@
+{
+  "id": "world2-020",
+  "title": "One Left",
+  "map": [
+    "####  ",
+    "#  ###",
+    "#  $@#",
+    "# *. #",
+    "##   #",
+    " #####"
+  ],
+  "solution": "ddllUluurDldRdrruuLrddlluluurD"
+}
