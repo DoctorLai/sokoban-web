@@ -1,0 +1,19 @@
+{
+  "id": "world3-002",
+  "title": "Inside Out",
+  "map": [
+    " ####     ",
+    " #  ######",
+    " #       #",
+    " # ####  #",
+    " # #@ $ ##",
+    " # #  # # ",
+    "## #  # # ",
+    "#  ##*# # ",
+    "#    .# # ",
+    "####    # ",
+    "   ###  # ",
+    "     #### "
+  ],
+  "solution": "ddrDDldRRdrUUUUUUUruLLLLLulDDDDDDldRRRdrUUUluurRllddrdddrruuuuUUruLLLLLulDDDDuuurrrrrddllDurruullllldddDuuuurrrrrddlldDuurruulllllddddDldRRR"
+}
