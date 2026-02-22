@@ -1,0 +1,15 @@
+{
+  "id": "world3-004",
+  "title": "Around the Corner",
+  "map": [
+    "####   ",
+    "#  ####",
+    "#     #",
+    "# .#  #",
+    "# .#  #",
+    "#  $$ #",
+    "#### @#",
+    "   ####"
+  ],
+  "solution": "luuuuuuRlddRlddrDuluurDuluurDrruLLdlddrUluRurrddLLdlddrUUUrruullDlDDuururrdLdLruulDlDurrdLdddlddrUUUUUruL"
+}
