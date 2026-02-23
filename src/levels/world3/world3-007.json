@@ -1,0 +1,13 @@
+{
+  "id": "world3-007",
+  "title": "Min Two",
+  "map": [
+    "######",
+    "#    #",
+    "# $ @#",
+    "# # $#",
+    "# . .#",
+    "######"
+  ],
+  "solution": "ullldRurDllddrrrUdllluurrDrdLuuurDD"
+}

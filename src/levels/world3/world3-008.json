@@ -1,0 +1,18 @@
+{
+  "id": "world3-008",
+  "title": "Vertical Gun",
+  "map": [
+    "   ###",
+    "   #+#",
+    "   #*#",
+    "   #.#",
+    "   # #",
+    "#### #",
+    "#  $ #",
+    "#  $ #",
+    "#    #",
+    "##  ##",
+    " #### "
+  ],
+  "solution": "DDDDDLDlluRdddrUrUUUUUUddddddlluuRlddrruUUUUdddddlUluRdrUUU"
+}
