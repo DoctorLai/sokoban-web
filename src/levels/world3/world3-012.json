@@ -1,0 +1,14 @@
+{
+  "id": "world3-012",
+  "title": "P",
+  "map": [
+    "#####",
+    "#   #",
+    "# $@#",
+    "#  ##",
+    "#.$# ",
+    "#. # ",
+    "#### "
+  ],
+  "solution": "ullddddrUluuurrdLulDDDrUluurrdLulDD"
+}

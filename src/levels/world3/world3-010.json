@@ -1,0 +1,16 @@
+{
+  "id": "world3-010",
+  "title": "Tri-Corner",
+  "map": [
+    "   #### ",
+    "   #@ # ",
+    "   #$ # ",
+    "   #  # ",
+    "#### ###",
+    "# .. $ #",
+    "#      #",
+    "#  #####",
+    "####    "
+  ],
+  "solution": "rddldddrruLLuuruulDDDDLdlluRRdRUUUddrrdLLLuruuruulDDDDrdLulllddrUluRRRdrruLdlLullddrUrrruL"
+}

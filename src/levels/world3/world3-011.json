@@ -1,0 +1,15 @@
+{
+  "id": "world3-011",
+  "title": "Vertical Bar",
+  "map": [
+    "#####",
+    "#.*.#",
+    "# $ #",
+    "#@$ #",
+    "# $ #",
+    "# $ #",
+    "#.*.#",
+    "#####"
+  ],
+  "solution": "uRlddRUrULdlUdrrDDLulD"
+}
