@@ -1,0 +1,13 @@
+{
+  "id": "world3-015",
+  "title": "Rotated P",
+  "map": [
+    "#######",
+    "#.    #",
+    "# $@  #",
+    "# $####",
+    "#. #   ",
+    "####   "
+  ],
+  "solution": "ulldRRllddrUluurrdLulDurrrrdLLulldDrUruL"
+}
