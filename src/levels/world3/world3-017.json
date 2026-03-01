@@ -1,0 +1,20 @@
+{
+  "id": "world3-017",
+  "title": "Sword",
+  "map": [
+    " #### ",
+    " #  # ",
+    " # @# ",
+    " #.$# ",
+    " #  # ",
+    " #.$# ",
+    " #  # ",
+    " #.$# ",
+    "##  ##",
+    "# .$ #",
+    "#    #",
+    "##  ##",
+    " #### "
+  ],
+  "solution": "lddrUdlddrDuluurDldddddrruLdlUUUUUddrDuluurDDldddrruLdlUUUrDlddrruLdlUruuuuuuluurDDDDlUdrDDlUdrDDlUdddrUruL"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "world3-018",
+  "title": "凸",
+  "map": [
+    "  ####   ",
+    "###  ####",
+    "#       #",
+    "# $***. #",
+    "#@      #",
+    "#########"
+  ],
+  "solution": "rUdrrURdllluRRluurDldlluRddrrrrruulllulD"
+}
