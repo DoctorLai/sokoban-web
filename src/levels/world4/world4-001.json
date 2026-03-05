@@ -1,0 +1,15 @@
+{
+  "id": "world4-001",
+  "title": "Small Office",
+  "map": [
+    "    ###",
+    "##### #",
+    "#  $..#",
+    "# #$$+#",
+    "#   ###",
+    "#   #  ",
+    "#   #  ",
+    "#####  "
+  ],
+  "solution": "ulLDRlDlluuRRRdldlddrUUUdlluurR"
+}
