@@ -1,0 +1,14 @@
+{
+  "id": "world4-002",
+  "title": "Parallel Two",
+  "map": [
+    "  ####",
+    "###  #",
+    "#. $ #",
+    "#  @ #",
+    "#.#$##",
+    "#   # ",
+    "##### "
+  ],
+  "solution": "ruulDrdLulldddrrUULulDrrruLL"
+}
