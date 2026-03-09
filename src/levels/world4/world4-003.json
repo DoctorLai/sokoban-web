@@ -1,0 +1,18 @@
+{
+  "id": "world4-003",
+  "title": "Narrow Corridor",
+  "map": [
+    "#####",
+    "#   #",
+    "# $ #",
+    "#.  #",
+    "# ###",
+    "# #  ",
+    "# ###",
+    "#.$ #",
+    "#.$@#",
+    "#   #",
+    "#####"
+  ],
+  "solution": "uLrddlluUUUUUddddrrdLuluuuurruullDurDlDDDDuuuurrdL"
+}

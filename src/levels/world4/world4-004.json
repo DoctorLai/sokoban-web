@@ -1,0 +1,13 @@
+{
+  "id": "world4-004",
+  "title": "Rotate",
+  "map": [
+    "#######",
+    "#     #",
+    "# #.# #",
+    "# $*$ #",
+    "#  .@ #",
+    "#######"
+  ],
+  "solution": "ruuulldDuullddRluurrrrdddlLUdrruLruulllldddR"
+}
