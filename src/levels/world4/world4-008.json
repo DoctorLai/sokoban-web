@@ -1,0 +1,14 @@
+{
+  "id": "world4-008",
+  "title": "Simple 3",
+  "map": [
+    " #####",
+    " #   #",
+    " # # #",
+    "##  .#",
+    "#.$$ #",
+    "#@$. #",
+    "######"
+  ],
+  "solution": "RUUrruullDurrddddLUlldRurruuulldDRdL"
+}
