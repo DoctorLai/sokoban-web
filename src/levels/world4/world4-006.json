@@ -1,0 +1,15 @@
+{
+  "id": "world4-006",
+  "title": "Ugly Q",
+  "map": [
+    " ####  ",
+    "##  #  ",
+    "#.. ###",
+    "#  @  #",
+    "##  $ #",
+    " ###$ #",
+    "   #  #",
+    "   ####"
+  ],
+  "solution": "rrdLrddlUUruLLulldRdRUrDulluurDlddrruLdlUruLddrrrddlUUruLLdlU"
+}
