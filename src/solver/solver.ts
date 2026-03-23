@@ -364,7 +364,7 @@ function reconstructSteps(goalNode: any, initial: GameState): StepInfo[] {
 
   for (let i = 1; i < chain.length; i++) {
     const node = chain[i];
-    const dd = DIRS[node.pushDir!];
+    const dd = DIRS[node.pushDir as Dir];
     const bx = node.pushBoxFrom % s.w;
     const by = (node.pushBoxFrom / s.w) | 0;
     const behindX = bx - dd.dx;
@@ -383,7 +383,7 @@ function reconstructSteps(goalNode: any, initial: GameState): StepInfo[] {
     }
 
     // Apply the push
-    out.push({ dir: node.pushDir!, pushed: true });
+    out.push({ dir: node.pushDir as Dir, pushed: true });
     s.boxes[node.pushBoxFrom] = 0;
     s.boxes[node.pushBoxTo] = 1;
     s.player = node.pushBoxFrom;
