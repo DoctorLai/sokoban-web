@@ -1,9 +1,91 @@
 import type { Dir, GameState, SolveResult, StepInfo } from "../types";
 import { cloneLevel } from "../core/level";
-import { DIRS, xy } from "../core/grid";
+import { DIRS } from "../core/grid";
 import { isWin } from "../core/state";
-import { isCornerDeadlock } from "./deadlock";
+import { computeDeadSquares, hasDeadSquare } from "./deadlock";
 import { buildWalkTree, walkPathFromTree } from "./reach";
+
+// ---------------------------------------------------------------------------
+// Min-heap priority queue for A*
+// ---------------------------------------------------------------------------
+class MinHeap<T> {
+  private d: [number, T][] = [];
+
+  push(priority: number, val: T): void {
+    let i = this.d.push([priority, val]) - 1;
+    while (i > 0) {
+      const par = (i - 1) >> 1;
+      if (this.d[par][0] <= this.d[i][0]) break;
+      [this.d[par], this.d[i]] = [this.d[i], this.d[par]];
+      i = par;
+    }
+  }
+
+  pop(): T {
+    const top = this.d[0][1];
+    const end = this.d.pop()!;
+    if (this.d.length > 0) {
+      this.d[0] = end;
+      let i = 0;
+      while (true) {
+        const l = 2 * i + 1,
+          r = 2 * i + 2,
+          n = this.d.length;
+        let s = i;
+        if (l < n && this.d[l][0] < this.d[s][0]) s = l;
+        if (r < n && this.d[r][0] < this.d[s][0]) s = r;
+        if (s === i) break;
+        [this.d[s], this.d[i]] = [this.d[i], this.d[s]];
+        i = s;
+      }
+    }
+    return top;
+  }
+
+  get size(): number {
+    return this.d.length;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Admissible heuristic: sum of min Manhattan distances from each box to any goal.
+// Precompute a goalDist table once per level for O(numBoxes) evaluation.
+// ---------------------------------------------------------------------------
+function buildGoalDistTable(initial: GameState): Int32Array {
+  const { w, h } = initial;
+  const N = w * h;
+  const dist = new Int32Array(N).fill(0x7fffffff);
+  for (let i = 0; i < N; i++) {
+    if (!initial.goals[i]) continue;
+    const gx = i % w,
+      gy = (i / w) | 0;
+    for (let j = 0; j < N; j++) {
+      const d = Math.abs((j % w) - gx) + Math.abs(((j / w) | 0) - gy);
+      if (d < dist[j]) dist[j] = d;
+    }
+  }
+  return dist;
+}
+
+function heuristic(boxes: Uint8Array, N: number, goalDist: Int32Array): number {
+  let h = 0;
+  for (let i = 0; i < N; i++) {
+    if (boxes[i]) h += goalDist[i];
+  }
+  return h;
+}
+
+// ---------------------------------------------------------------------------
+// Compact state key: box positions as 1-indexed char codes + null + player.
+// Much shorter than a BigInt decimal string (numBoxes+2 chars vs ~120 chars).
+// ---------------------------------------------------------------------------
+function makeKey(boxes: Uint8Array, N: number, normPlayer: number): string {
+  let s = "";
+  for (let i = 0; i < N; i++) {
+    if (boxes[i]) s += String.fromCharCode(i + 1); // 1-indexed avoids null char
+  }
+  return s + "\x00" + String.fromCharCode(normPlayer + 1);
+}
 
 export async function solveMinPushes(
   initial: GameState,
@@ -15,16 +97,6 @@ export async function solveMinPushes(
     return {
       ok: false,
       reason: "Search limit exceeded.",
-      expanded: 0,
-      steps: [],
-      timeMs: performance.now() - t0,
-    };
-  }
-
-  if (isCornerDeadlock(initial)) {
-    return {
-      ok: false,
-      reason: "Immediate deadlock detected (corner).",
       expanded: 0,
       steps: [],
       timeMs: performance.now() - t0,
@@ -45,55 +117,121 @@ export async function solveMinPushes(
   const h = initial.h;
   const N = w * h;
 
-  // -------- Bitboard encoding (boxes only) --------
-  const encodeBoxes = (boxes: Uint8Array): bigint => {
-    let bits = 0n;
-    for (let i = 0; i < N; i++) {
-      if (boxes[i]) bits |= 1n << BigInt(i);
-    }
-    return bits;
-  };
+  // ---- Precompute once per level ----
+  const goalDist = buildGoalDistTable(initial);
+  const deadSquares = computeDeadSquares(initial);
+
+  if (hasDeadSquare(initial, deadSquares)) {
+    return {
+      ok: false,
+      reason: "Immediate deadlock detected.",
+      expanded: 0,
+      steps: [],
+      timeMs: performance.now() - t0,
+    };
+  }
 
   type Node = {
-    key: string;
-    player: number;
+    key: string; // state key (used as closed-set identifier when popped)
+    player: number; // normalized player: min reachable cell index
     boxes: Uint8Array;
-    boxesBits: bigint;
     parent: Node | null;
-    walk: string; // walk before the push (from parent state)
-    pushDir: Dir | null; // push taken from parent to reach this node
+    pushBoxFrom: number; // index of box before push (-1 for root)
+    pushBoxTo: number; // index of box after push  (-1 for root)
+    pushDir: Dir | null;
+    g: number; // push cost so far
   };
 
   const DIR_LIST: Dir[] = ["U", "D", "L", "R"];
 
-  const queue: Node[] = [];
-  let qs = 0;
-  let expanded = 0;
+  // ---- Reusable scratch state ----
+  const scratch = cloneLevel(initial);
 
-  const seen = new Set<string>();
+  // ---- Lightweight BFS for player normalization (reuses these arrays) ----
+  const normVisited = new Uint8Array(N);
+  const normQueue = new Int32Array(N);
 
+  /** Find the minimum-index reachable cell from `start` with current scratch board. */
+  function computeNormPlayer(start: number): number {
+    normVisited.fill(0);
+    let qs = 0,
+      qe = 0;
+    let minIdx = start;
+    normVisited[start] = 1;
+    normQueue[qe++] = start;
+    while (qs < qe) {
+      const cur = normQueue[qs++];
+      if (cur < minIdx) minIdx = cur;
+      const x = cur % w,
+        y = (cur / w) | 0;
+      let ni: number;
+      if (
+        x > 0 &&
+        !normVisited[(ni = cur - 1)] &&
+        !scratch.walls[ni] &&
+        !scratch.boxes[ni]
+      ) {
+        normVisited[ni] = 1;
+        normQueue[qe++] = ni;
+      }
+      if (
+        x < w - 1 &&
+        !normVisited[(ni = cur + 1)] &&
+        !scratch.walls[ni] &&
+        !scratch.boxes[ni]
+      ) {
+        normVisited[ni] = 1;
+        normQueue[qe++] = ni;
+      }
+      if (
+        y > 0 &&
+        !normVisited[(ni = cur - w)] &&
+        !scratch.walls[ni] &&
+        !scratch.boxes[ni]
+      ) {
+        normVisited[ni] = 1;
+        normQueue[qe++] = ni;
+      }
+      if (
+        y < h - 1 &&
+        !normVisited[(ni = cur + w)] &&
+        !scratch.walls[ni] &&
+        !scratch.boxes[ni]
+      ) {
+        normVisited[ni] = 1;
+        normQueue[qe++] = ni;
+      }
+    }
+    return minIdx;
+  }
+
+  // ---- Build root node ----
   const rootBoxes = initial.boxes.slice();
-  const rootBits = encodeBoxes(rootBoxes);
-  const rootKey = rootBits.toString() + "|" + initial.player;
+  scratch.player = initial.player;
+  scratch.boxes.set(rootBoxes);
+  const normInitPlayer = computeNormPlayer(initial.player);
+  const rootKey = makeKey(rootBoxes, N, normInitPlayer);
 
   const root: Node = {
     key: rootKey,
-    player: initial.player,
+    player: normInitPlayer,
     boxes: rootBoxes,
-    boxesBits: rootBits,
     parent: null,
-    walk: "",
+    pushBoxFrom: -1,
+    pushBoxTo: -1,
     pushDir: null,
+    g: 0,
   };
 
-  queue.push(root);
-  seen.add(rootKey);
+  // ---- A* ----
+  const heap = new MinHeap<Node>();
+  let expanded = 0;
+  const closed = new Set<string>(); // keys of optimally-processed states
 
-  // -------- reusable scratch state --------
-  const scratch = cloneLevel(initial);
+  heap.push(heuristic(rootBoxes, N, goalDist), root);
 
-  while (qs < queue.length) {
-    // budget check: each dequeue counts as one "expanded"
+  while (heap.size > 0) {
+    // Budget check before each expansion
     if (expanded >= maxExpanded) {
       return {
         ok: false,
@@ -104,14 +242,19 @@ export async function solveMinPushes(
       };
     }
 
-    const cur = queue[qs++];
+    const cur = heap.pop();
+
+    // With a consistent heuristic, first pop = optimal g.
+    // Skip stale duplicates already in closed.
+    if (closed.has(cur.key)) continue;
+    closed.add(cur.key);
     expanded++;
 
-    // materialize current state into scratch
+    // Materialize state into scratch
     scratch.player = cur.player;
     scratch.boxes.set(cur.boxes);
 
-    // win check happens when dequeued/expanded (not when generated)
+    // Win check on dequeue
     if (isWin(scratch)) {
       const steps = reconstructSteps(cur, initial);
       return {
@@ -123,21 +266,22 @@ export async function solveMinPushes(
       };
     }
 
-    // One BFS tree for all candidate pushes from this state
+    // One walk-BFS for all push reachability from normalized player position
     const tree = buildWalkTree(scratch, cur.player);
 
     for (let bi = 0; bi < N; bi++) {
       if (!cur.boxes[bi]) continue;
 
-      const { x, y } = xy(bi, w);
+      const bx = bi % w;
+      const by = (bi / w) | 0;
 
       for (const dir of DIR_LIST) {
         const dd = DIRS[dir];
 
-        const behindX = x - dd.dx;
-        const behindY = y - dd.dy;
-        const aheadX = x + dd.dx;
-        const aheadY = y + dd.dy;
+        const behindX = bx - dd.dx;
+        const behindY = by - dd.dy;
+        const aheadX = bx + dd.dx;
+        const aheadY = by + dd.dy;
 
         if (behindX < 0 || behindX >= w || behindY < 0 || behindY >= h)
           continue;
@@ -150,51 +294,41 @@ export async function solveMinPushes(
         if (initial.walls[ahead]) continue;
         if (cur.boxes[ahead]) continue;
 
-        const walkPath = walkPathFromTree(tree, cur.player, behind);
-        if (walkPath == null) continue;
+        // Fast dead-square prune before applying (no scratch mutation yet)
+        if (deadSquares[ahead] && !initial.goals[ahead]) continue;
 
-        // ----- apply push on scratch -----
+        // Apply push on scratch
         scratch.boxes[bi] = 0;
         scratch.boxes[ahead] = 1;
         scratch.player = bi;
 
-        // deadlock prune
-        if (isCornerDeadlock(scratch)) {
-          // revert
-          scratch.boxes[bi] = 1;
-          scratch.boxes[ahead] = 0;
-          scratch.player = cur.player; // restore
-          continue;
-        }
+        // Normalize player position in successor state
+        const normNext = computeNormPlayer(bi);
+        const nextKey = makeKey(scratch.boxes, N, normNext);
 
-        const nextBoxes = scratch.boxes.slice();
-        const nextPlayer = scratch.player;
+        if (!closed.has(nextKey)) {
+          const nextBoxes = scratch.boxes.slice();
+          const nextG = cur.g + 1;
+          const nextH = heuristic(nextBoxes, N, goalDist);
 
-        // fast bit update
-        const nextBits =
-          cur.boxesBits ^ (1n << BigInt(bi)) ^ (1n << BigInt(ahead));
-
-        const nextKey = nextBits.toString() + "|" + nextPlayer;
-
-        if (!seen.has(nextKey)) {
           const node: Node = {
             key: nextKey,
-            player: nextPlayer,
+            player: normNext,
             boxes: nextBoxes,
-            boxesBits: nextBits,
             parent: cur,
-            walk: walkPath,
+            pushBoxFrom: bi,
+            pushBoxTo: ahead,
             pushDir: dir,
+            g: nextG,
           };
 
-          seen.add(nextKey);
-          queue.push(node);
+          heap.push(nextG + nextH, node);
         }
 
-        // revert push
+        // Revert push
         scratch.boxes[bi] = 1;
         scratch.boxes[ahead] = 0;
-        scratch.player = cur.player; // restore
+        scratch.player = cur.player;
       }
     }
   }
@@ -212,33 +346,47 @@ function countPushes(steps: StepInfo[]): number {
   return steps.reduce((acc, s) => acc + (s.pushed ? 1 : 0), 0);
 }
 
+/**
+ * Reconstruct step sequence by replaying from the initial state.
+ * Walk paths are computed lazily here (not stored in nodes), saving memory during search.
+ */
 function reconstructSteps(goalNode: any, initial: GameState): StepInfo[] {
   const chain: any[] = [];
   let n = goalNode;
-
   while (n) {
     chain.push(n);
     n = n.parent;
   }
-
   chain.reverse();
 
   const out: StepInfo[] = [];
-  const s = cloneLevel(initial);
+  const s = cloneLevel(initial); // actual replayed state tracks real player position
 
   for (let i = 1; i < chain.length; i++) {
     const node = chain[i];
+    const dd = DIRS[node.pushDir as Dir];
+    const bx = node.pushBoxFrom % s.w;
+    const by = (node.pushBoxFrom / s.w) | 0;
+    const behindX = bx - dd.dx;
+    const behindY = by - dd.dy;
+    const behind = behindY * s.w + behindX;
 
-    for (const ch of node.walk) {
-      const dir = chToDir(ch);
-      out.push({ dir, pushed: false });
-      applyWalkOnly(s, dir);
+    // Walk from actual current player to the required behind-box position
+    const tree = buildWalkTree(s, s.player);
+    const walkStr = walkPathFromTree(tree, s.player, behind);
+    if (walkStr) {
+      for (const ch of walkStr) {
+        const dir = chToDir(ch);
+        out.push({ dir, pushed: false });
+        applyWalkOnly(s, dir);
+      }
     }
 
-    if (node.pushDir) {
-      out.push({ dir: node.pushDir, pushed: true });
-      applyPush(s, node.pushDir);
-    }
+    // Apply the push
+    out.push({ dir: node.pushDir as Dir, pushed: true });
+    s.boxes[node.pushBoxFrom] = 0;
+    s.boxes[node.pushBoxTo] = 1;
+    s.player = node.pushBoxFrom;
   }
 
   return out;
@@ -260,21 +408,8 @@ function chToDir(ch: string): Dir {
 }
 
 function applyWalkOnly(s: GameState, dir: Dir) {
-  const w = s.w;
-  const { x, y } = xy(s.player, w);
   const dd = DIRS[dir];
-  s.player = (y + dd.dy) * w + (x + dd.dx);
-}
-
-function applyPush(s: GameState, dir: Dir) {
-  const w = s.w;
-  const { x, y } = xy(s.player, w);
-  const dd = DIRS[dir];
-
-  const boxI = (y + dd.dy) * w + (x + dd.dx);
-  const aheadI = (y + 2 * dd.dy) * w + (x + 2 * dd.dx);
-
-  s.boxes[boxI] = 0;
-  s.boxes[aheadI] = 1;
-  s.player = boxI;
+  const x = s.player % s.w;
+  const y = (s.player / s.w) | 0;
+  s.player = (y + dd.dy) * s.w + (x + dd.dx);
 }

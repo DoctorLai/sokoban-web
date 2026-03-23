@@ -24,6 +24,31 @@ const btnPlay = document.getElementById("btnPlay") as HTMLButtonElement;
 const statsEl = document.getElementById("stats") as HTMLPreElement;
 const solEl = document.getElementById("solution") as HTMLPreElement;
 const badge = document.getElementById("statusBadge") as HTMLSpanElement;
+const themeToggle = document.getElementById("themeToggle") as HTMLButtonElement;
+
+// ---- Theme (dark / light) ------------------------------------------------
+const THEME_KEY = "sokoban-theme";
+
+function applyTheme(dark: boolean) {
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  themeToggle.textContent = dark ? "☀️ Light" : "🌙 Dark";
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const prefersDark =
+    saved !== null
+      ? saved === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(prefersDark);
+})();
+
+themeToggle.addEventListener("click", () => {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const next = !isDark;
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next ? "dark" : "light");
+});
 
 let currentLevel: LevelJson | null = null;
 let state: GameState | null = null;
