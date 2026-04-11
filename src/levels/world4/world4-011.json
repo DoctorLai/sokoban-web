@@ -1,0 +1,15 @@
+{
+  "id": "world4-011",
+  "title": "Three in a Row",
+  "map": [
+    "####",
+    "#  ####",
+    "#  #  #",
+    "#@*$* #",
+    "#  .  #",
+    "#  ####",
+    "#  #",
+    "####"
+  ],
+  "solution": "urDDrrruulDLdlUrrrdLullluurDlddddrUluuRRllddrU"
+}

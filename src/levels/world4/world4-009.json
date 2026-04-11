@@ -1,0 +1,14 @@
+{
+  "id": "world4-009",
+  "title": "Two Boxes But Not Too Simple",
+  "map": [
+    "###### ",
+    "# .. ##",
+    "#@ #$ #",
+    "## $  #",
+    " #   ##",
+    " #   # ",
+    " ##### "
+  ],
+  "solution": "urrrDDLruulldDrddrUluluurrdrdLddllUUUluRdddrruLdlUU"
+}

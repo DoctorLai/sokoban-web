@@ -1,0 +1,14 @@
+{
+  "id": "world4-010",
+  "title": "Three Boxes But Not Too Simple",
+  "map": [
+    "#####",
+    "#   #",
+    "#$+$#",
+    "#.$.#",
+    "#   #",
+    "#   #",
+    "#####"
+  ],
+  "solution": "ulDrDulDrrddlUUluurrDullddrddlU"
+}
