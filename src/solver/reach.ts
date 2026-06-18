@@ -1,7 +1,5 @@
 import type { GameState } from "../types";
-import { DIRS, xy, idx } from "../core/grid";
-
-const DIR_LIST = Object.values(DIRS);
+import { xy, idx } from "../core/grid";
 
 export type WalkTree = {
   /** 1 means reachable from start (without moving boxes) */

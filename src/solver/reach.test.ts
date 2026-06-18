@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { stateFromAscii } from "../testUtils";
-import { reachable, shortestWalkPath } from "./reach";
+import {
+  reachable,
+  shortestWalkPath,
+  buildWalkTree,
+  walkPathFromTree,
+} from "./reach";
 
 // helper: count reachable cells
 function count1(a: Uint8Array) {
@@ -118,5 +123,56 @@ describe("reach: shortestWalkPath()", () => {
 
     // there is a wall column at x=3 forcing a detour, so path must be > 4
     expect(path!.length).toBeGreaterThan(4);
+  });
+
+  it("returns null when the goal is walled off", () => {
+    // The right room is sealed off from the player by a full wall column.
+    const s = stateFromAscii(["#######", "#@ # .#", "#  #  #", "#######"]);
+    const start = s.player;
+    const goal = 1 * s.w + 5; // the goal cell inside the sealed room
+
+    expect(shortestWalkPath(s, start, goal)).toBeNull();
+  });
+});
+
+describe("reach: buildWalkTree / walkPathFromTree", () => {
+  it("marks the start cell as reached with itself as predecessor", () => {
+    const s = stateFromAscii(["#####", "#@  #", "#   #", "#####"]);
+    const tree = buildWalkTree(s, s.player);
+    expect(tree.reach[s.player]).toBe(1);
+    expect(tree.prev[s.player]).toBe(s.player);
+  });
+
+  it("does not expand through boxes", () => {
+    const s = stateFromAscii(["#####", "#@  #", "# $ #", "#   #", "#####"]);
+    const tree = buildWalkTree(s, s.player);
+    const boxI = 2 * s.w + 2;
+    expect(tree.reach[boxI]).toBe(0);
+    expect(tree.prev[boxI]).toBe(-1);
+  });
+
+  it("walkPathFromTree returns empty string for start == goal", () => {
+    const s = stateFromAscii(["#####", "#@  #", "#   #", "#####"]);
+    const tree = buildWalkTree(s, s.player);
+    expect(walkPathFromTree(tree, s.player, s.player)).toBe("");
+  });
+
+  it("walkPathFromTree returns null for an unreachable goal", () => {
+    const s = stateFromAscii(["#######", "#@ # .#", "#  #  #", "#######"]);
+    const tree = buildWalkTree(s, s.player);
+    const goal = 1 * s.w + 5;
+    expect(walkPathFromTree(tree, s.player, goal)).toBeNull();
+  });
+
+  it("a single tree reproduces multiple shortest walk paths", () => {
+    const s = stateFromAscii(["#####", "#@  #", "#   #", "#   #", "#####"]);
+    const tree = buildWalkTree(s, s.player);
+
+    const a = walkPathFromTree(tree, s.player, 1 * s.w + 3); // (3,1)
+    const b = walkPathFromTree(tree, s.player, 3 * s.w + 3); // (3,3)
+    expect(a).not.toBeNull();
+    expect(b).not.toBeNull();
+    expect(a!.length).toBe(2); // Manhattan distance from (1,1)
+    expect(b!.length).toBe(4);
   });
 });
