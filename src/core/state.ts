@@ -1,5 +1,5 @@
 import type { Dir, GameState, StepInfo } from "../types";
-import { step, DIRS, xy } from "./grid";
+import { DIRS, xy } from "./grid";
 
 /**
  * Apply one move to the game state.
@@ -9,26 +9,27 @@ export function applyMove(
   s: GameState,
   dir: Dir,
 ): { changed: boolean; pushed: boolean } {
-  const w = s.w;
-  const h = s.h;
-  const p1 = step(s.player, dir, w);
-
-  // Guard: out-of-bounds or wall
-  const { x: px, y: py } = xy(s.player, w);
+  const { w, h } = s;
   const dd = DIRS[dir];
+  const { x: px, y: py } = xy(s.player, w);
+
+  // Target cell in front of the player.
   const nx = px + dd.dx;
   const ny = py + dd.dy;
   if (nx < 0 || nx >= w || ny < 0 || ny >= h)
     return { changed: false, pushed: false };
+
+  const p1 = ny * w + nx;
   if (s.walls[p1]) return { changed: false, pushed: false };
 
-  // If next is a box, attempt to push
+  // If next is a box, attempt to push it one cell further.
   if (s.boxes[p1]) {
-    const p2 = step(p1, dir, w);
     const nnx = nx + dd.dx;
     const nny = ny + dd.dy;
     if (nnx < 0 || nnx >= w || nny < 0 || nny >= h)
       return { changed: false, pushed: false };
+
+    const p2 = nny * w + nnx;
     if (s.walls[p2]) return { changed: false, pushed: false };
     if (s.boxes[p2]) return { changed: false, pushed: false };
 

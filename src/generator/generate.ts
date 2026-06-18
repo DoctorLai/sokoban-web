@@ -1,5 +1,5 @@
 import type { Dir, GameState, LevelJson } from "../types";
-import { cloneLevel, countBoxes } from "../core/level";
+import { cloneLevel } from "../core/level";
 import { DIRS, xy } from "../core/grid";
 import { reachable } from "../solver/reach";
 import { solveMinPushes } from "../solver/solver";

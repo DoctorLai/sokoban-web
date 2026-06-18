@@ -84,9 +84,10 @@ function loadLevel(lv: LevelJson) {
 
   const parsed = parseLevel(lv);
 
+  // Keep an independent copy as the level's true initial state so that
+  // playing/undoing never mutates the reference used by reset().
   levelInitial = cloneLevel(parsed);
   state = cloneLevel(parsed);
-  state = parsed;
 
   history = new History();
   history.init(state);
