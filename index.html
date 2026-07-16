@@ -10,7 +10,12 @@
       <strong>A Sokoban Game | 推箱子游戏</strong>
       <span class="badge" id="statusBadge">Ready</span>
       <div class="spacer"></div>
-      <span class="hint">Controls: <span class="kbd">WASD</span>/<span class="kbd">Arrows</span>, Undo <span class="kbd">Z</span>, Redo <span class="kbd">Y</span>, Reset <span class="kbd">SPACE/r</span></span>
+      <span class="version" id="appVersion">Version: development</span>
+      <span class="hint"
+        >Controls: <span class="kbd">WASD</span>/<span class="kbd">Arrows</span
+        >, Undo <span class="kbd">Z</span>, Redo <span class="kbd">Y</span>,
+        Reset <span class="kbd">SPACE/r</span></span
+      >
       <button id="themeToggle">🌙 Dark</button>
     </header>
 
@@ -18,24 +23,24 @@
       <section class="panel">
         <select id="levelSelect"></select>
 
-        <div class="row" style="margin-top: 10px;">
+        <div class="row" style="margin-top: 10px">
           <button id="btnReset">Reset</button>
           <button id="btnUndo">Undo</button>
           <button id="btnRedo">Redo</button>
           <div class="spacer"></div>
           <button id="btnSave">Save</button>
-          <button id="btnLoad">Load</button>          
+          <button id="btnLoad">Load</button>
         </div>
 
-        <div class="row" style="margin-top: 10px;">
+        <div class="row" style="margin-top: 10px">
           <button id="btnSolve">Solve</button>
           <button id="btnPlay">Play Solution</button>
         </div>
 
-        <label style="margin-top: 10px;">Stats</label>
+        <label style="margin-top: 10px">Stats</label>
         <pre id="stats"></pre>
 
-        <label style="margin-top: 10px;">Solution</label>
+        <label style="margin-top: 10px">Solution</label>
         <pre id="solution"></pre>
 
         <!-- <label style="margin-top: 10px;">Generate a new solvable level</label>
@@ -45,10 +50,26 @@
         </div>
         <button id="btnGenerate" style="margin-top: 10px;">Generate (reverse pull)</button> -->
 
-        <p class="hint" style="margin-top: 12px;">
-          Source code is available on <a href="https://github.com/doctorlai/sokoban-web" target="_blank" rel="noopener noreferrer">GitHub</a>.
-          If you find any issues or have suggestions, please <a href="https://github.com/doctorlai/sokoban-web/issues" target="_blank" rel="noopener noreferrer">open an issue</a>.
-          Buy me a coffee? <a href="https://buymeacoffee.com/y0btg5r" target="_blank" rel="noopener noreferrer">Thanks!</a>
+        <p class="hint" style="margin-top: 12px">
+          Source code is available on
+          <a
+            href="https://github.com/doctorlai/sokoban-web"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >. If you find any issues or have suggestions, please
+          <a
+            href="https://github.com/doctorlai/sokoban-web/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            >open an issue</a
+          >. Buy me a coffee?
+          <a
+            href="https://buymeacoffee.com/y0btg5r"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Thanks!</a
+          >
         </p>
       </section>
 
@@ -59,13 +80,12 @@
 
     <script type="module" src="/src/main.ts"></script>
 
-  <!-- Mobile D-pad -->
-  <div id="dpad" aria-label="On-screen controls">
-    <button class="dpad-btn" data-dir="U" aria-label="Up">▲</button>
-    <button class="dpad-btn" data-dir="L" aria-label="Left">◀</button>
-    <button class="dpad-btn" data-dir="D" aria-label="Down">▼</button>
-    <button class="dpad-btn" data-dir="R" aria-label="Right">▶</button>
-  </div>
-
+    <!-- Mobile D-pad -->
+    <div id="dpad" aria-label="On-screen controls">
+      <button class="dpad-btn" data-dir="U" aria-label="Up">▲</button>
+      <button class="dpad-btn" data-dir="L" aria-label="Left">◀</button>
+      <button class="dpad-btn" data-dir="D" aria-label="Down">▼</button>
+      <button class="dpad-btn" data-dir="R" aria-label="Right">▶</button>
+    </div>
   </body>
 </html>
