@@ -23,12 +23,12 @@
     "check": "npm run format && npm run build && npm run coverage"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.0.18",
     "prettier": "^3.9.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3",
-    "vite": "^6.0.7",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
     "vitest": "^4.0.18"
   }
 }
