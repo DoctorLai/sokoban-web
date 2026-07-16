@@ -2,10 +2,10 @@ import { execFileSync } from "node:child_process";
 import { defineConfig } from "vite";
 import packageJson from "./package.json";
 
-const [year, month, day] = packageJson.version.split(".");
-const versionDate = [year, month.padStart(2, "0"), day.padStart(2, "0")].join(
-  "-",
-);
+const dateVersion = /^(\d{4})\.(\d{1,2})\.(\d{1,2})$/.exec(packageJson.version);
+const versionLabel = dateVersion
+  ? `${dateVersion[1]}-${dateVersion[2].padStart(2, "0")}-${dateVersion[3].padStart(2, "0")}`
+  : packageJson.version;
 
 function getCommitSha(): string {
   if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7);
@@ -22,6 +22,6 @@ function getCommitSha(): string {
 export default defineConfig({
   base: "./",
   define: {
-    __APP_VERSION__: JSON.stringify(`${versionDate} (${getCommitSha()})`),
+    __APP_VERSION__: JSON.stringify(`${versionLabel} (${getCommitSha()})`),
   },
 });

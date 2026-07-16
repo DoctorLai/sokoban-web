@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "build": "tsc -b && vite build",
+    "build": "npm run lint && vite build",
     "gen:levels": "tsc -p tsconfig.scripts.json && node dist-scripts/scripts/gen-levels.js",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
@@ -20,7 +20,7 @@
     "test:run": "npm test",
     "coverage": "vitest run --coverage",
     "test:coverage": "npm run coverage",
-    "check": "npm run format && npm run lint && npm run coverage && npm run build"
+    "check": "npm run format && npm run build && npm run coverage"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

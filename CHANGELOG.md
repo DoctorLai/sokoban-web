@@ -20,6 +20,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Updated development dependencies to versions without known npm audit findings
 - Standardized CI and GitHub Pages deployment on Node.js 22
 - Pinned workflow actions to immutable commits
+- Kept fork pull request coverage checks read-only and removed duplicate type checking
 
 ### Fixed
 
