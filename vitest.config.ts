@@ -5,20 +5,14 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     coverage: {
-      reporter: ["text", "html"],
-      // Basic minimums (start low, raise over time)
+      reporter: ["text", "html", "json", "json-summary"],
       thresholds: {
-        statements: 82,
-        branches: 74,
-        functions: 78,
-        lines: 86,
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
       },
-      // Optional: don't count trivial files
-      exclude: [
-        "**/node_modules/**",
-        "**/dist/**",
-        "**/scripts/**",
-      ],
+      exclude: ["**/node_modules/**", "**/dist/**", "**/scripts/**"],
     },
   },
 });

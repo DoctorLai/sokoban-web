@@ -16,10 +16,12 @@
   --radius-pill: 999px;
 
   /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
     "Apple Color Emoji", "Segoe UI Emoji";
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 
   /* Light mode colors (default) */
   --bg: #ffffff;
@@ -31,6 +33,7 @@
   --bg-control: rgba(0, 0, 0, 0.06);
   --bg-select: #ffffff;
   --text-select: #1a1a1a;
+  --link: #005fcc;
 }
 
 [data-theme="dark"] {
@@ -43,6 +46,7 @@
   --bg-control: rgba(255, 255, 255, 0.08);
   --bg-select: #2d2d2d;
   --text-select: #e8e8e8;
+  --link: #ffd54f;
 }
 
 body {
@@ -50,7 +54,14 @@ body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+a,
+a:visited {
+  color: var(--link);
 }
 
 /* ==========================================================================
@@ -68,6 +79,12 @@ header {
 
 header .spacer {
   flex: 1;
+}
+
+.version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
 }
 
 main {

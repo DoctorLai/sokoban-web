@@ -1,0 +1,6 @@
+coverage/
+dist/
+dist-scripts/
+node_modules/
+package-lock.json
+src/levels/**/*.json

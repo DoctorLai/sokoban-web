@@ -25,6 +25,9 @@ const statsEl = document.getElementById("stats") as HTMLPreElement;
 const solEl = document.getElementById("solution") as HTMLPreElement;
 const badge = document.getElementById("statusBadge") as HTMLSpanElement;
 const themeToggle = document.getElementById("themeToggle") as HTMLButtonElement;
+const appVersion = document.getElementById("appVersion") as HTMLSpanElement;
+
+appVersion.textContent = `Version: ${__APP_VERSION__}`;
 
 // ---- Theme (dark / light) ------------------------------------------------
 const THEME_KEY = "sokoban-theme";
@@ -56,6 +59,7 @@ let levelInitial: GameState | null = null; // true initial state for current lev
 let history = new History();
 
 let solutionSteps: StepInfo[] | null = null;
+let solutionStart: GameState | null = null;
 let playing = false;
 
 function getLevelFromURL(): string | null {
@@ -181,6 +185,8 @@ function redo() {
 
 async function solve() {
   if (!state || playing) return;
+  solutionSteps = null;
+  solutionStart = null;
   setBadge("Solving...");
   solEl.textContent = "Solving, please wait...";
   const snapshot = cloneLevel(state);
@@ -194,6 +200,7 @@ Time: ${(res.timeMs ?? 0).toFixed(1)} ms`;
     return;
   }
   solutionSteps = res.steps;
+  solutionStart = snapshot;
   setBadge(`Solved (min pushes = ${res.minPushes})`);
   solEl.textContent =
     `Min pushes: ${res.minPushes}
@@ -207,11 +214,12 @@ ${formatSteps(solutionSteps)}
 }
 
 async function playSolution() {
-  if (!state || !solutionSteps || playing) return;
+  if (!state || !solutionSteps || !solutionStart || playing) return;
   playing = true;
   setBadge("Playing...");
-  // reset to initial
-  history.reset(state);
+  state = cloneLevel(solutionStart);
+  history = new History();
+  history.init(state);
   render();
 
   for (const st of solutionSteps) {
